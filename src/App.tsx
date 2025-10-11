@@ -16,6 +16,7 @@ import { SidebarProvider } from './components/ui/sidebar';
 import { TooltipProvider } from './components/ui/tooltip';
 import QueryProvider from './lib/react-query/QueryProvider';
 import { ToastProvider } from './contexts/ToastContext';
+import RoomGalleryPage from './components/RoomGalleryPage';
 
 function AppContent() {
   const { isAuthenticated, isLoading: loading } = useAuthContext();
@@ -29,12 +30,12 @@ function AppContent() {
       setActiveItem('cottages-amenities');
     } else if (section === 'photo-gallery') {
       setActiveItem('photo-gallery');
+    } else if (section === 'room-gallery') {
+      setActiveItem('room-gallery');
     } else if (section === 'admin-settings') {
       setActiveItem('admin-settings');
     }
-    // You can add more navigation logic here for other management sections
   };
-
   const handleBackToManage = () => {
     setActiveItem('manage');
   };
@@ -50,7 +51,9 @@ function AppContent() {
       case 'cottages-amenities':
         return <CottageManagement onBack={handleBackToManage} />;
       case 'photo-gallery':
-        return <PhotoGalleryManager onBack={handleBackToManage} />;
+        return <PhotoGalleryManager onBack={handleBackToManage} onNavigate={handleSectionSelect} />;
+      case 'room-gallery':
+        return <RoomGalleryPage onBack={handleBackToManage} onNavigate={handleSectionSelect} />;
       case 'admin-settings':
         return <AdminManagement onBack={handleBackToManage} />;
       case 'new-booking':

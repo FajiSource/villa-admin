@@ -17,7 +17,8 @@ import {
   ImagePlus,
   Eye,
   Calendar,
-  FileImage
+  FileImage,
+  Home
 } from 'lucide-react';
 import { useAddHomePhoto, useDeletePhoto, useGetHomePhotos, useUpdateHomePhoto } from '../lib/react-query/QueriesAndMutation';
 import { useToast } from '../contexts/ToastContext';
@@ -32,12 +33,13 @@ interface HomePhoto {
 
 interface PhotoGalleryManagerProps {
   onBack: () => void;
+  onNavigate?: (section: string) => void;
 }
 
 
 
 
-export function PhotoGalleryManager({ onBack }: PhotoGalleryManagerProps) {
+export function PhotoGalleryManager({ onBack, onNavigate }: PhotoGalleryManagerProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -205,22 +207,58 @@ export function PhotoGalleryManager({ onBack }: PhotoGalleryManagerProps) {
                 <Camera className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Photo Gallery Manager</h1>
+                <h1 className="text-2xl font-bold text-white">Home Photo Gallery Manager</h1>
                 <p className="text-white/80">Manage your resort's showcase images</p>
               </div>
             </div>
           </div>
-
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Photo
-          </Button>
+          <div className="flex items-center space-x-3">
+            {onNavigate && (
+              <Button
+                onClick={() => onNavigate('room-gallery')}
+                className="bg-white/90 text-slate-800 hover:bg-white border-0 shadow-lg"
+              >
+                <Home className="h-4 w-4 mr-2" />
+                Room Photos
+              </Button>
+            )}
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Photo
+            </Button>
+          </div>
         </div>
       </div>
-
+      <div className="max-w-7xl mx-auto px-8 py-12">
+        {onNavigate && (
+          <div className="mb-8">
+            <Card
+              className="glass-effect border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
+              onClick={() => onNavigate('room-gallery')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 group-hover:scale-110 transition-transform">
+                      <Home className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-800 mb-1">Room Photo Gallery</h3>
+                      <p className="text-slate-600 text-sm">
+                        Manage photos specifically for room listings and accommodations
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowLeft className="h-5 w-5 text-slate-400 rotate-180 group-hover:translate-x-2 transition-transform" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
       {/* Content */}
       <div className="max-w-7xl mx-auto px-8 py-12">
         {photos && photos.length > 0 ? (

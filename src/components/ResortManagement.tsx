@@ -53,7 +53,6 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
       actions: [
         { label: 'Home Gallery', icon: Home },
         { label: 'Room Photos', icon: ImageIcon },
-        { label: 'Upload Images', icon: Plus }
       ]
     },
     {
