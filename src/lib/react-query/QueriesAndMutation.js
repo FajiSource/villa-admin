@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { addHomePhoto, deleteHomePost, getHomePhotos, updateHomePhoto } from "../api/homeApi"
 import { QUERY_KEYS } from "./queryKey";
 import { deleteRoomPost, getRoomPhotos, newRoomGallery } from "../api/roomGalleryApi";
-import { changeAdminPassword, deleteAdminUser, getAdminUsers, registerNewUser } from "../api/userApi";
+import { changeAdminPassword, deleteAdminUser, getAdminUsers, getLatestuUsers, registerNewUser } from "../api/userApi";
 import { addAccommodationImage, addSchedule, deleteAccommodationImage, getAccommodationImages, getAccommodations, getSchedules, newAccommodation } from "../api/accommodationApi";
 import { getRatingTotals } from "../api/ratingApi";
 import { getTodayBookingCount } from "../api/bookingApi";
@@ -39,6 +39,13 @@ export const useGetHomePhotos = () => {
     queryFn: getHomePhotos
   })
 }
+export const useGetLatestUsers = () => {
+  return useQuery({
+    queryKey: ['latest-users'],
+    queryFn: getLatestuUsers
+  })
+}
+
 export const useDeletePhoto = () => {
   const queryClient = useQueryClient();
   return useMutation({

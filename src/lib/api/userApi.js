@@ -34,6 +34,23 @@ export const getAdminUsers = async () => {
         throw error
     }
 }
+
+export const getLatestuUsers = async () => {
+    try {
+        const users = await apiService("/admin/users/latest");
+        if (!users.status === 200) {
+            return {
+                success: false,
+                message: "Failed to Fetch Users."
+            }
+        }
+        return users.data
+    } catch (error) {
+        return  error
+    }
+}
+
+
 export const deleteAdminUser = async (userID) => {
     try {
         await apiService.delete(`/admin/user/${userID}`);

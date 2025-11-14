@@ -1,19 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { Filter, Search, Calendar, User, Bed, MapPin, Phone, DollarSign } from 'lucide-react';
+import { Filter, Search, Calendar, User, Bed, MapPin, Phone, DollarSign, Eye } from 'lucide-react';
 import Header from './customs/Header';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import apiService from '../services/apiService';
 
+type Booking = {
+  id: number | string;
+  customer_name: string;
+  contact_number: string;
+  booking_date: string;
+  check_in: string;
+  check_out: string;
+  room_type?: string | null;
+  room_quantity?: number | null;
+  cottage_type?: string | null;
+  cottage_quantity?: number | null;
+  entrance_guests?: number | null;
+  total_amount: number | string;
+  payment_proof?: string | null;
+  payment_proof_url?: string | null;
+  proof_of_payment?: string | null;
+  proof_of_payment_url?: string | null;
+  paymentProof?: string | null;
+  paymentProofUrl?: string | null;
+  proofOfPayment?: string | null;
+  proofOfPaymentUrl?: string | null;
+  image?: string | null;
+};
 
+type DateFilter = 'all' | 'today' | 'yesterday';
 
 export function AllBookings() {
-  const [bookings, setBookings] = useState([]);
-  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState<DateFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -23,6 +48,7 @@ export function AllBookings() {
         if (res.data.success) {
           setBookings(res.data.data);
           setFilteredBookings(res.data.data);
+          console.log('Fetched bookings:', res.data.data);
         }
       } catch (error) {
         console.error('Error fetching bookings:', error);
@@ -33,40 +59,40 @@ export function AllBookings() {
     fetchBookings();
   }, []);
 
-  const formatBookingDate = (dateString) => {
+  const formatBookingDate = (dateString: string) => {
     const bookingDate = new Date(dateString);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     bookingDate.setHours(0, 0, 0, 0);
-    const diffDays = (today - bookingDate) / (1000 * 60 * 60 * 24);
+    const diffDays = (today.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24);
 
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     return bookingDate.toLocaleDateString();
   };
 
-  const handleFilterChange = (value) => {
+  const handleFilterChange = (value: DateFilter) => {
     setFilter(value);
     applyFilters(value, searchTerm);
   };
 
-  const handleSearch = (value) => {
+  const handleSearch = (value: string) => {
     setSearchTerm(value);
     applyFilters(filter, value);
   };
 
-  const applyFilters = (filterValue, searchValue) => {
+  const applyFilters = (filterValue: DateFilter, searchValue: string) => {
     let filtered = [...bookings];
 
     // Apply date filter
     if (filterValue === 'today') {
-      filtered = filtered.filter(b => {
+      filtered = filtered.filter((b) => {
         const bookingDate = new Date(b.booking_date);
         const today = new Date();
         return bookingDate.toDateString() === today.toDateString();
       });
     } else if (filterValue === 'yesterday') {
-      filtered = filtered.filter(b => {
+      filtered = filtered.filter((b) => {
         const bookingDate = new Date(b.booking_date);
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -76,7 +102,7 @@ export function AllBookings() {
 
     // Apply search filter
     if (searchValue) {
-      filtered = filtered.filter(b => 
+      filtered = filtered.filter((b) => 
         b.customer_name.toLowerCase().includes(searchValue.toLowerCase()) ||
         b.contact_number.includes(searchValue) ||
         (b.room_type && b.room_type.toLowerCase().includes(searchValue.toLowerCase())) ||
@@ -87,7 +113,7 @@ export function AllBookings() {
     setFilteredBookings(filtered);
   };
 
-  const getStatusBadge = (checkIn, checkOut) => {
+  const getStatusBadge = (checkIn: string, checkOut: string) => {
     const today = new Date();
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
@@ -100,6 +126,8 @@ export function AllBookings() {
       return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Completed</Badge>;
     }
   };
+
+  
 
   if (loading) {
     return (
@@ -248,9 +276,47 @@ export function AllBookings() {
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-green-600" />
                       <span className="font-bold text-lg text-slate-900">
-                        ₱{parseFloat(booking.total_amount).toLocaleString()}
+                        ₱{parseFloat(String(booking.total_amount ?? 0)).toLocaleString()}
                       </span>
                     </div>
+                  </div>
+                </div>
+
+                {/* Proof of Payment */}
+                <div className="mt-4 w-[200px] border-t border-slate-100 pt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600 text-sm font-medium uppercase tracking-wide">
+                      Proof of Payment
+                    </span>
+                    {booking.image ? (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-slate-200 text-slate-700 hover:border-[#3770bd] hover:text-[#3770bd]"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl max-h-[80vh] overflow-auto">
+                          <DialogHeader>
+                            <DialogTitle>Proof of Payment</DialogTitle>
+                          </DialogHeader>
+                            <div className="rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+                            <img
+                              src={booking.image || ''}
+                              alt={`Proof of payment for ${booking.customer_name}`}
+                                className="w-full max-w-[50vh] max-h-[50vh] w-x-auto object-contain "
+                              loading="lazy"
+                            />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ) : (
+                      <span className="text-xs text-slate-500 italic">Not provided</span>
+                    )}
                   </div>
                 </div>
               </CardContent>

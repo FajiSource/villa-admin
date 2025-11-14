@@ -86,7 +86,7 @@ export function ModernLogin() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60" />
                   <Input
                     type="email"
-                    placeholder="admin@pelagic.com"
+                    placeholder="Enter your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

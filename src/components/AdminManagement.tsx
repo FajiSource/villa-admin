@@ -41,7 +41,6 @@ interface AdminManagementProps {
 
 
 
-// Mock toast context
 const useToast = () => ({
   addToast: (type: string, message: string) => {
     console.log(`${type}: ${message}`);

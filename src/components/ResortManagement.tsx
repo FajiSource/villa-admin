@@ -75,11 +75,10 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
     }
   };
 
-  const handleActionClick = (e: React.MouseEvent, action: string, sectionId: string) => {
-    e.stopPropagation();
-    console.log(`Action: ${action} for section: ${sectionId}`);
-    // Handle specific action logic here
-  };
+  // const handleActionClick = (e: React.MouseEvent, action: string, sectionId: string) => {
+  //   e.stopPropagation();
+  //   console.log(`Action: ${action} for section: ${sectionId}`);
+  // };
 
   return (
     <div className="h-full w-full space-y-8 p-8 bg-gradient-to-br from-slate-50 to-blue-50 overflow-auto">
@@ -130,8 +129,8 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
                   <Button
                     key={index}
                     variant="outline"
-                    className="w-full justify-start space-x-3 bg-white/50 border-slate-200 hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all duration-200"
-                    onClick={(e) => handleActionClick(e, action.label, section.id)}
+                    className="w-full justify-start space-x-3 bg-white/50 border-slate-200 hover:bg-white hover:border-black-300 hover:text-black-600 transition-all duration-200"
+                    // onClick={(e) => handleActionClick(e, action.label, section.id)}
                   >
                     <action.icon className="h-4 w-4" />
                     <span>{action.label}</span>
@@ -156,7 +155,7 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-12">
+      {/* <div className="mt-12">
         <Card className="glass-effect border-cyan-200 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-slate-800">
@@ -202,7 +201,7 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 }

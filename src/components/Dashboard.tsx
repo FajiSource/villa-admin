@@ -2,6 +2,7 @@ import { FaBed, FaCalendar, FaCaretUp, FaStar } from 'react-icons/fa6';
 import Header from './customs/Header';
 import BookingsLineChart from './ui/BookingsLineChart';
 import { useGetBookingsTodayCount, useGetRatingTotals } from '../lib/react-query/QueriesAndMutation';
+import { LatestUsers } from './LatestUsers';
 
 
 
@@ -52,7 +53,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="col-span-12 xl:col-span-4 md:col-span-6 bg-white mt-6 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <div className="card user-list shadow-lg rounded-lg">
             <div className="card-header p-4 border-b">
               <h5 className="text-lg font-semibold text-[#3770bd]">Guest Satisfaction Rating</h5>
@@ -91,6 +92,8 @@ export function Dashboard() {
           </div>
         </div>
         <BookingsLineChart />
+        <LatestUsers />
+
       </section>
     </div>
   );

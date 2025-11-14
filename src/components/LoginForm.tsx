@@ -17,7 +17,6 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple validation - in real app would authenticate
     if (email && password) {
       onLogin();
     }
@@ -59,7 +58,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@pelagicresort.com"
+                placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-[#3770bd] focus:ring-[#3770bd]"
