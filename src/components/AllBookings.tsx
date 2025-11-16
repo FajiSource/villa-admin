@@ -51,8 +51,8 @@ type Booking = {
   image?: string | null;
   status?: string | null;
   booking_status?: string | null;
-  is_approved?: boolean | number | null;
-  is_declined?: boolean | number | null;
+  is_approved?:  number | null;
+  accommodation_id: number | string | null;
 };
 
 type DateFilter = "all" | "today" | "yesterday";
@@ -176,11 +176,9 @@ export function AllBookings() {
     // Check various possible status fields
     const status = booking.status || booking.booking_status;
     if (booking.is_approved === 1) return "approved";
-    if (booking.is_approved === 2) return "declined";
 
     // Check boolean flags
-    if (booking.is_approved === true) return "approved";
-    if (booking.is_declined === true) return "declined";
+    if (booking.is_approved === 2) return "declined";
 
     return "pending";
   };
@@ -536,10 +534,8 @@ export function AllBookings() {
                     )}
                   </div>
                 </div>
-
-                {/* Approve/Decline Actions */}
-                {booking.is_approved === 0 ? (
-                  <div className="mt-4 border-t border-slate-100 pt-4">
+                {booking.accommodation_id !== null && booking.is_approved === 0 ? (
+                  <div className="mt-4 border-t border-slate-100 pt-4 bg-red-200">
                     {(() => {
                       const bookingStatus = getBookingStatus(booking);
 
