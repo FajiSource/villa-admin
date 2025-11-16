@@ -206,6 +206,7 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
   const handleDeleteFromDetails = (id: number) => {
     setCottages(cottages?.filter(cottage => cottage.id !== id));
     setSelectedAccommodation(null);
+    
   };
 
   const formatDate = (dateString: string) => {

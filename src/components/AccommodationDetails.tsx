@@ -23,6 +23,7 @@ import {
   Eye
 } from 'lucide-react';
 import { useAddSchedule, useGetSchedules } from '../lib/react-query/QueriesAndMutation';
+import apiService from '../services/apiService';
 
 interface Price {
   id: number;
@@ -75,6 +76,20 @@ export function AccommodationDetails({ accommodation, onBack, onDelete, refetch 
   const handleDelete = async () => {
     setIsDeleting(true);
     // Simulate API call delay
+    try {
+        const res = await apiService.delete(`/admin/accommodations/${accommodation.id}`);
+        if(res.status !== 200){
+          throw new Error('Failed to delete accommodation');
+        }
+        setIsDeleting(false);
+      setShowDeleteConfirm(false);
+
+    } catch (error) {
+      console.error('Failed to delete accommodation:', error);
+      setShowDeleteConfirm(false);
+
+      setIsDeleting(false);
+    }
     setTimeout(() => {
       onDelete(accommodation.id);
       setIsDeleting(false);
@@ -402,7 +417,7 @@ export function AccommodationDetails({ accommodation, onBack, onDelete, refetch 
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2 text-slate-800">
               <div className="p-2 rounded-full bg-gradient-to-r from-red-400 to-red-500">
@@ -422,7 +437,7 @@ export function AccommodationDetails({ accommodation, onBack, onDelete, refetch 
               variant="outline"
               onClick={() => setShowDeleteConfirm(false)}
               disabled={isDeleting}
-              className="border-slate-200 hover:bg-slate-50"
+              className="border-slate-200 hover:bg-slate-50 hover:text-black"
             >
               Cancel
             </Button>
