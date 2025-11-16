@@ -23,7 +23,7 @@ import {
   UserCheck,
   Calendar
 } from 'lucide-react';
-import { useChangeAdminPassword, useDeleteAdminUser, useGetAdminUsers, useRegisterNewUser } from '../lib/react-query/QueriesAndMutation';
+import { useChangeAdminPassword, useDeleteAdminUser, useGetAdminUsers, useRegisterNewUser, useGetAdmins, useGetCustomers } from '../lib/react-query/QueriesAndMutation';
 
 interface AdminUser {
   id: number;
@@ -48,6 +48,7 @@ const useToast = () => ({
 });
 
 export function AdminManagement({ onBack }: AdminManagementProps) {
+  const [activeTab, setActiveTab] = useState<'admins' | 'users'>('admins');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -68,7 +69,9 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
     confirm_password: ""
   });
 
-  const { data: users, isLoading } = useGetAdminUsers();
+  const { data: latest, isLoading } = useGetAdminUsers();
+  const { data: admins = [] } = useGetAdmins();
+  const { data: customers = [] } = useGetCustomers();
   const { mutateAsync: registerNewUser } = useRegisterNewUser();
   const { mutateAsync: removeUser } = useDeleteAdminUser();
   const { mutateAsync: changePassword } = useChangeAdminPassword();
@@ -243,9 +246,9 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
   }
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <div className="flex-1 bg-pelagic-gradient-light min-h-screen">
       {/* Header */}
-      <div className="relative h-32 w-full bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500">
+      <div className="relative h-32 w-full resort-gradient-primary">
         <div className="absolute inset-0 bg-black/20" />
         <div className="relative max-w-7xl mx-auto px-8 py-8 flex justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -262,15 +265,15 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
                 <Users className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Admin Management</h1>
-                <p className="text-white/80">Manage administrative users and permissions</p>
+                <h1 className="text-2xl font-bold text-white">User Management</h1>
+                <p className="text-white/80">Manage admin accounts and regular users</p>
               </div>
             </div>
           </div>
           
           <Button
             onClick={() => setShowAddModal(true)}
-            className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg"
+            className="bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)] hover:from-[var(--primary-color-dark)] hover:to-[var(--primary-color-dark)] text-white shadow-lg"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             Add New Admin
@@ -278,50 +281,66 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="max-w-7xl mx-auto px-8 mt-8 text-[var(--primary-color)]!">
+        <div className="inline-flex rounded-xl overflow-hidden border border-white/30 shadow">
+          <button
+            onClick={() => setActiveTab('admins')}
+            className={`px-4 py-2 text-sm font-medium ${activeTab==='admins' ? 'bg-blue-400 text-slate-800' : 'bg-white/10 text-black'} `}
+          >
+            Admins
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-4 py-2 text-sm font-medium text-black! ${activeTab==='users' ? 'bg-blue-400 text-slate-800' : 'bg-white/10 text-black'} `}
+          >
+            Users
+          </button>
+        </div>
+      </div>
+
       {/* Content */}
       <div className="max-w-7xl mx-auto px-8 py-12 space-y-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="glass-effect border-indigo-200 shadow-lg">
+          <Card className="glass-effect border-pink-200 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-500">
+                <div className="p-3 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)]">
                   <Users className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-600">Total Admins</p>
-                  <p className="text-2xl font-bold text-slate-800">{users?.length || 0}</p>
+                  <p className="text-2xl font-bold text-slate-800">{admins?.length || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-effect border-purple-200 shadow-lg">
+          <Card className="glass-effect border-pink-200 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-full bg-gradient-to-r from-purple-400 to-purple-500">
+                <div className="p-3 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)]">
                   <Crown className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600">Super Admins</p>
-                  <p className="text-2xl font-bold text-slate-800">
-                    {users?.filter(u => u.role === 'super_admin').length || 0}
-                  </p>
+                  <p className="text-sm text-slate-600">Total Users</p>
+                  <p className="text-2xl font-bold text-slate-800">{customers?.length || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-effect border-emerald-200 shadow-lg">
+          <Card className="glass-effect border-pink-200 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500">
+                <div className="p-3 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)]">
                   <Shield className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-600">Active Today</p>
                   <p className="text-2xl font-bold text-slate-800">
-                    {users?.filter(u => u.last_login && 
+                    {(activeTab==='admins' ? admins : customers)?.filter((u:any) => u.last_login && 
                       new Date(u.last_login) > new Date(Date.now() - 24*60*60*1000)
                     ).length || 0}
                   </p>
@@ -331,26 +350,26 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
           </Card>
         </div>
 
-        {/* Admin Users Table */}
+        {/* Users Table */}
         <Card className="glass-effect border-slate-200 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <div className="p-2 rounded-full bg-gradient-to-r from-slate-400 to-slate-500">
+              <div className="p-2 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)]">
                 <Users className="h-5 w-5 text-white" />
               </div>
-              <span>Administrative Users</span>
+              <span>{activeTab === 'admins' ? 'Administrative Users' : 'Regular Users'}</span>
             </CardTitle>
             <CardDescription className="text-slate-600">
-              Manage admin accounts, permissions, and security settings
+              {activeTab==='admins' ? 'Manage admin accounts, permissions, and security settings' : 'View and manage regular user accounts'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {users && users.length > 0 ? (
+            {(activeTab==='admins' ? admins : customers) && (activeTab==='admins' ? admins : customers).length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-slate-200">
-                      <TableHead className="font-semibold text-slate-700">Admin Details</TableHead>
+                      <TableHead className="font-semibold text-slate-700">{activeTab==='admins' ? 'Admin Details' : 'User Details'}</TableHead>
                       <TableHead className="font-semibold text-slate-700">Role</TableHead>
                       <TableHead className="font-semibold text-slate-700">Joined</TableHead>
                       <TableHead className="font-semibold text-slate-700">Last Login</TableHead>
@@ -358,7 +377,7 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((user) => (
+                    {(activeTab==='admins' ? admins : customers).map((user:any) => (
                       <TableRow key={user.id} className="border-slate-100 hover:bg-slate-50/50">
                         <TableCell>
                           <div className="flex items-center space-x-3">
@@ -367,7 +386,7 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
                             </div>
                             <div>
                               <p className="font-medium text-slate-800">
-                                {user.fname} {user.lname}
+                                {user.name || `${user.fname || ''} ${user.lname || ''}`}
                               </p>
                               <div className="flex items-center space-x-1 text-sm text-slate-500">
                                 <Mail className="h-3 w-3" />
@@ -398,22 +417,14 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => openPasswordModal(user)}
-                              className="border-blue-200 text-blue-600 hover:bg-blue-50"
-                            >
-                              <Key className="h-3 w-3 mr-1" />
-                              Change Password
-                            </Button>
+                            {/* Change Password temporarily disabled: no backend endpoint */}
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => openDeleteModal(user)}
                               className="border-red-200 text-red-600 hover:bg-red-50"
                             >
-                              <Trash2 className="h-3 w-3 mr-1" />
+                              <Trash2 className="h-3 w-3 mr-2" />
                               Remove
                             </Button>
                           </div>
@@ -428,16 +439,18 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
                 <div className="p-6 rounded-full bg-gradient-to-r from-slate-100 to-slate-200 w-fit mx-auto mb-4">
                   <Users className="h-12 w-12 text-slate-400" />
                 </div>
-                <h3 className="font-semibold text-slate-800 mb-2">No Admin Users</h3>
-                <p className="text-slate-500 mb-6">
-                  Start by adding your first administrative user to manage the resort system.
-                </p>
+                <h3 className="font-semibold text-slate-800 mb-2">No {activeTab==='admins' ? 'Admin' : 'User'} Accounts</h3>
+                {activeTab==='admins' && (
+                  <p className="text-slate-500 mb-6">
+                    Start by adding your first administrative user to manage the resort system.
+                  </p>
+                )}
                 <Button
                   onClick={() => setShowAddModal(true)}
                   className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Add First Admin
+                  Add Admin
                 </Button>
               </div>
             )}
@@ -669,7 +682,7 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
               <div className="p-2 rounded-full bg-gradient-to-r from-red-400 to-red-500">
                 <AlertTriangle className="h-5 w-5 text-white" />
               </div>
-              <span>Remove Admin User</span>
+              <span>Remove {activeTab==='admins' ? 'Admin' : 'User'}</span>
             </DialogTitle>
             <DialogDescription className="text-slate-600 pt-2">
               Are you sure you want to remove{' '}
@@ -718,7 +731,7 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Remove Admin
+              Remove
             </Button>
           </div>
         </DialogContent>

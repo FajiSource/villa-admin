@@ -71,7 +71,7 @@ export function AllBookings() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await apiService.get("/admin/bookings");
+        const res = await apiService.get("/api/bookings");
         if (res.data.success) {
           setBookings(res.data.data);
           setFilteredBookings(res.data.data);
@@ -174,23 +174,20 @@ export function AllBookings() {
     booking: Booking
   ): "approved" | "declined" | "pending" => {
     // Check various possible status fields
-    const status = booking.status || booking.booking_status;
-    if (booking.is_approved === 1) return "approved";
-
-    // Check boolean flags
-    if (booking.is_approved === 2) return "declined";
-
-    return "pending";
+    const status = (booking.status || booking.booking_status || 'pending').toLowerCase();
+    if (status === 'approved') return 'approved';
+    if (status === 'declined') return 'declined';
+    return 'pending';
   };
 
   const handleApprove = async (bookingId: number | string) => {
     setProcessingBooking(bookingId);
     try {
-      const res = await apiService.post(`/admin/bookings/${bookingId}/approve`);
+      const res = await apiService.post(`/api/bookings/${bookingId}/approve`);
       if (res.data.success) {
         addToast("success", "Booking approved successfully!");
         // Refresh bookings
-        const refreshRes = await apiService.get("/admin/bookings");
+        const refreshRes = await apiService.get("/api/bookings");
         if (refreshRes.data.success) {
           const updatedBookings = refreshRes.data.data;
           setBookings(updatedBookings);
@@ -251,11 +248,11 @@ export function AllBookings() {
   const handleDecline = async (bookingId: number | string) => {
     setProcessingBooking(bookingId);
     try {
-      const res = await apiService.post(`/admin/bookings/${bookingId}/decline`);
+      const res = await apiService.post(`/api/bookings/${bookingId}/decline`);
       if (res.data.success) {
         addToast("success", "Booking declined successfully!");
         // Refresh bookings
-        const refreshRes = await apiService.get("/admin/bookings");
+        const refreshRes = await apiService.get("/api/bookings");
         if (refreshRes.data.success) {
           const updatedBookings = refreshRes.data.data;
           setBookings(updatedBookings);
@@ -319,7 +316,7 @@ export function AllBookings() {
         <Header title="Booking Records" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3770bd] mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--primary-color)] mx-auto mb-4"></div>
             <p className="text-slate-600">Loading bookings...</p>
           </div>
         </div>
@@ -342,7 +339,7 @@ export function AllBookings() {
                 placeholder="Search bookings..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10 border-slate-200 focus:border-[#3770bd] focus:ring-[#3770bd]"
+                className="pl-10 border-slate-200 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
               />
             </div>
 
@@ -353,8 +350,8 @@ export function AllBookings() {
                 onClick={() => handleFilterChange("all")}
                 className={
                   filter === "all"
-                    ? "pelagic-gradient-primary text-white"
-                    : "border-slate-200 text-slate-600 hover:border-[#3770bd]"
+                    ? "resort-gradient-primary text-white"
+                    : "border-slate-200 text-slate-600 hover:border-[var(--primary-color)]"
                 }
               >
                 <Filter className="w-4 h-4 mr-2" />
@@ -365,8 +362,8 @@ export function AllBookings() {
                 onClick={() => handleFilterChange("today")}
                 className={
                   filter === "today"
-                    ? "pelagic-gradient-primary text-white"
-                    : "border-slate-200 text-slate-600 hover:border-[#3770bd]"
+                    ? "resort-gradient-primary text-white"
+                    : "border-slate-200 text-slate-600 hover:border-[var(--primary-color)]"
                 }
               >
                 Today
@@ -376,8 +373,8 @@ export function AllBookings() {
                 onClick={() => handleFilterChange("yesterday")}
                 className={
                   filter === "yesterday"
-                    ? "pelagic-gradient-primary text-white"
-                    : "border-slate-200 text-slate-600 hover:border-[#3770bd]"
+                    ? "resort-gradient-primary text-white"
+                    : "border-slate-200 text-slate-600 hover:border-[var(--primary-color)]"
                 }
               >
                 Yesterday
@@ -387,7 +384,7 @@ export function AllBookings() {
 
           {/* Results Count */}
           <div className="text-slate-600">
-            <span className="font-medium text-[#3770bd]">
+            <span className="font-medium text-[var(--primary-color)]">
               {filteredBookings.length}
             </span>{" "}
             bookings found
@@ -415,25 +412,45 @@ export function AllBookings() {
           {filteredBookings.map((booking) => (
             <Card
               key={booking.id}
-              className="group hover:shadow-xl transition-all duration-300 border-slate-200 hover:border-[#3770bd]/30 bg-white"
+              className="group hover:shadow-xl transition-all duration-300 border-slate-200 hover:border-[var(--primary-color)]/30 bg-white"
             >
               <CardContent className="p-6">
                 {/* Header with Name and Status */}
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-slate-900 text-lg group-hover:text-[#3770bd] transition-colors">
+                    <h3 className="font-semibold text-slate-900 text-lg group-hover:text-[var(--primary-color)] transition-colors">
                       {booking.customer_name}
                     </h3>
                     <p className="text-sm text-slate-500 mt-1">
                       Booked {formatBookingDate(booking.booking_date)}
                     </p>
                   </div>
-                  {getStatusBadge(booking.check_in, booking.check_out)}
+                  <div className="flex items-center gap-2">
+                    {/* Trip state badge */}
+                    {getStatusBadge(booking.check_in, booking.check_out)}
+                    {/* Approval status badge */}
+                    {(() => {
+                      const s = getBookingStatus(booking);
+                      if (s === 'approved') {
+                        return (
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Approved</Badge>
+                        );
+                      }
+                      if (s === 'declined') {
+                        return (
+                          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Declined</Badge>
+                        );
+                      }
+                      return (
+                        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>
+                      );
+                    })()}
+                  </div>
                 </div>
 
                 {/* Contact Info */}
                 <div className="flex items-center gap-2 mb-4 text-slate-600">
-                  <Phone className="w-4 h-4 text-[#3770bd]" />
+                  <Phone className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
                   <span className="text-sm">{booking.contact_number}</span>
                 </div>
 
@@ -457,7 +474,7 @@ export function AllBookings() {
                 <div className="space-y-3 mb-4">
                   {booking.room_type && (
                     <div className="flex items-center gap-3">
-                      <Bed className="w-4 h-4 text-[#3770bd]" />
+                      <Bed className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
                       <span className="text-sm text-slate-600">
                         {booking.room_type} ({booking.room_quantity})
                       </span>
@@ -465,14 +482,14 @@ export function AllBookings() {
                   )}
                   {booking.cottage_type && (
                     <div className="flex items-center gap-3">
-                      <MapPin className="w-4 h-4 text-[#3770bd]" />
+                      <MapPin className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
                       <span className="text-sm text-slate-600">
                         {booking.cottage_type} ({booking.cottage_quantity})
                       </span>
                     </div>
                   )}
                   <div className="flex items-center gap-3">
-                    <User className="w-4 h-4 text-[#3770bd]" />
+                    <User className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
                     <span className="text-sm text-slate-600">
                       {booking.entrance_guests} guests
                     </span>
@@ -507,7 +524,7 @@ export function AllBookings() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-slate-200 text-slate-700 hover:border-[#3770bd] hover:text-[#3770bd]"
+                            className="border-slate-200 text-slate-700 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
                           >
                             <Eye className="w-4 h-4 mr-2" />
                             View
@@ -534,34 +551,13 @@ export function AllBookings() {
                     )}
                   </div>
                 </div>
-                {booking.accommodation_id !== null && booking.is_approved === 0 ? (
-                  <div className="mt-4 border-t border-slate-100 pt-4 bg-red-200">
+                {(() => {
+                  const s = getBookingStatus(booking);
+                  return s === 'pending';
+                })() ? (
+                  <div className="mt-4 border-t border-slate-100 pt-4">
                     {(() => {
-                      const bookingStatus = getBookingStatus(booking);
-
-                      if (bookingStatus === "approved") {
-                        return (
-                          <div className="flex items-center justify-center">
-                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100 px-4 py-2 text-sm font-semibold">
-                              <CheckCircle className="w-4 h-4 mr-2 inline" />
-                              Approved
-                            </Badge>
-                          </div>
-                        );
-                      }
-
-                      if (bookingStatus === "declined") {
-                        return (
-                          <div className="flex items-center justify-center">
-                            <Badge className="bg-red-100 text-red-800 hover:bg-red-100 px-4 py-2 text-sm font-semibold">
-                              <XCircle className="w-4 h-4 mr-2 inline" />
-                              Declined
-                            </Badge>
-                          </div>
-                        );
-                      }
-
-                      // Show buttons for pending bookings
+                      // Show buttons for pending bookings only
                       return (
                         <div className="flex gap-2">
                           <Button
@@ -569,7 +565,7 @@ export function AllBookings() {
                             variant="default"
                             onClick={() => handleApprove(booking.id)}
                             disabled={processingBooking === booking.id}
-                            className="flex-1 pelagic-gradient-primary text-white hover:opacity-90"
+                            className="flex-1 resort-gradient-primary text-white hover:opacity-90"
                           >
                             {processingBooking === booking.id ? (
                               <>
@@ -611,31 +607,31 @@ export function AllBookings() {
                   <div className="mt-4 border-t border-slate-100 pt-4">
                     {(() => {
                       const bookingStatus = getBookingStatus(booking);
-
-                      if (bookingStatus === "approved") {
-                        return (
-                          <div className="flex items-center justify-center">
-                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100 px-4 py-2 text-sm font-semibold">
-                              <CheckCircle className="w-4 h-4 mr-2 inline" />
-                              Approved
-                            </Badge>
-                          </div>
-                        );
-                      }
-
-                      if (bookingStatus === "declined") {
-                        return (
-                          <div className="flex items-center justify-center">
-                            <Badge className="bg-red-100 text-red-800 hover:bg-red-100 px-4 py-2 text-sm font-semibold">
-                              <XCircle className="w-4 h-4 mr-2 inline" />
-                              Declined
-                            </Badge>
-                          </div>
-                        );
-                      }
-                    })()}
-                  </div>
-                )}
+ 
+                       if (bookingStatus === "approved") {
+                         return (
+                           <div className="flex items-center justify-center">
+                             <Badge className="bg-green-100 text-green-800 hover:bg-green-100 px-4 py-2 text-sm font-semibold">
+                               <CheckCircle className="w-4 h-4 mr-2 inline" />
+                               Approved
+                             </Badge>
+                           </div>
+                         );
+                       }
+ 
+                       if (bookingStatus === "declined") {
+                         return (
+                           <div className="flex items-center justify-center">
+                             <Badge className="bg-red-100 text-red-800 hover:bg-red-100 px-4 py-2 text-sm font-semibold">
+                               <XCircle className="w-4 h-4 mr-2 inline" />
+                               Declined
+                             </Badge>
+                           </div>
+                         );
+                       }
+                     })()}
+                   </div>
+                 )}
               </CardContent>
             </Card>
           ))}

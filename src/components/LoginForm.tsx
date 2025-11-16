@@ -61,7 +61,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-[#3770bd] focus:ring-[#3770bd]"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
                 required
               />
             </div>
@@ -73,7 +73,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 placeholder="Enter your secure password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-[#3770bd] focus:ring-[#3770bd]"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
                 required
               />
             </div>

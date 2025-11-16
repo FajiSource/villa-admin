@@ -123,7 +123,7 @@ export default function RoomGalleryPage({ onBack, onNavigate }: RoomGalleryPageP
         {/* Content */}
         {isGettingPhotos ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#3770bd] mb-4"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[var(--primary-color)] mb-4"></div>
             <p className="text-slate-600">Loading photos...</p>
           </div>
         ) : posts && posts.length > 0 ? (
@@ -155,8 +155,8 @@ export default function RoomGalleryPage({ onBack, onNavigate }: RoomGalleryPageP
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100">
-            <div className="p-6 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full mb-4">
-              <ImageIcon className="h-16 w-16 text-[#3770bd]" />
+            <div className="p-6 bg-gradient-to-br from-pink-100 to-rose-100 rounded-full mb-4">
+              <ImageIcon className="h-16 w-16 text-[var(--primary-color)]" />
             </div>
             <p className="text-slate-600 mb-2">No room photos yet</p>
             <p className="text-slate-400 text-sm">Click "Add New Photo" to get started</p>
@@ -186,7 +186,7 @@ export default function RoomGalleryPage({ onBack, onNavigate }: RoomGalleryPageP
                   id="image"
                   accept="image/*"
                   onChange={handleChange}
-                  className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-[#3770bd] file:to-[#2c5aa0] file:text-white file:cursor-pointer hover:file:from-[#2c5aa0] hover:file:to-[#1e4080]"
+                  className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-[var(--primary-color)] file:to-[var(--primary-color-dark)] file:text-white file:cursor-pointer hover:file:from-[var(--primary-color-dark)] hover:file:to-[var(--primary-color-dark)]"
                 />
                 <p className="text-sm text-slate-500 mt-2">Upload a high-quality image for the room gallery</p>
               </div>
@@ -205,7 +205,7 @@ export default function RoomGalleryPage({ onBack, onNavigate }: RoomGalleryPageP
               </Button>
               <Button
                 onClick={handleCreate}
-                className=" border-slate-300 hover:from-[#2c5aa0] hover:to-[#1e4080] text-black/500"
+                className=" border-slate-300 hover:from-[var(--primary-color-dark)] hover:to-[var(--primary-color-dark)] text-black/500"
               >
                 Save Photo
               </Button>

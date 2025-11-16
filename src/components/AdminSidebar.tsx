@@ -39,9 +39,9 @@ export function AdminSidebar({ activeItem, onItemSelect }: AdminSidebarProps) {
       key: "manage"
     },
     {
-      title: "New Booking",
-      icon: CalendarPlus,
-      key: "new-booking"
+      title: "User Management",
+      icon: Settings,
+      key: "admin-settings"
     },
     {
       title: "All Bookings",

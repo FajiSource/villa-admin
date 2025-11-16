@@ -2,7 +2,8 @@ import apiService from "../../services/apiService"
 
 export const newRoomType = async (data) => {
     try {
-        const res = await apiService.post("/admin/room-types", data);
+        // Not implemented in backend; return unsupported
+        const res = { status: 501, message: "Not implemented" };
 
         if (res.status !== 201) {
             return {
@@ -25,7 +26,8 @@ export const newRoomType = async (data) => {
 
 export const deleteRoomType = async (id) => {
     try {
-        const res = await apiService.delete(`/admin/room-types/${id}`);
+        // Not implemented in backend; return unsupported
+        const res = { status: 501, message: "Not implemented" };
 
         if (res.status !== 200) {
             return {
@@ -47,19 +49,13 @@ export const deleteRoomType = async (id) => {
 
 export const getRoomTypes = async () => {
     try {
-        const res = await apiService.get("/admin/room-types");
-
-        if (res.status !== 200) {
-            return {
-                success: false,
-                message: "Failed to fetch room types"
-            }
-        }
-
-        return {
-            success: true,
-            data: res.data
-        }
+        // Derive room types from villas endpoint
+        const res = await apiService.get("/api/villas");
+        const items = Array.isArray(res.data) ? res.data : res.data?.data || [];
+        const types = [...new Set(items.map((v) => (v.type || '').toLowerCase()))]
+            .filter(Boolean)
+            .map((t) => ({ id: t, name: t }));
+        return { success: true, data: types };
 
     } catch (error) {
         console.error("Error fetching room types:", error)

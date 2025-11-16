@@ -14,7 +14,7 @@ export function LatestUsers() {
   return (
     <div className="bg-white mt-6 rounded-lg shadow-lg">
       <div className="p-4 border-b">
-        <h5 className="text-lg font-semibold text-[#3770bd]">Latest Users</h5>
+        <h5 className="text-lg font-semibold" style={{ color: 'var(--primary-color)' }}>Latest Users</h5>
       </div>
       <div className="divide-y divide-gray-100">
         {users?.map((user:LatestUser) => (
@@ -34,7 +34,7 @@ export function LatestUsers() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <FaEnvelope className="text-[#3770bd] text-xs" />
+                    <FaEnvelope className="text-xs" style={{ color: 'var(--primary-color)' }} />
                     <span className="truncate">{user.email}</span>
                   </div>
                  
@@ -42,7 +42,7 @@ export function LatestUsers() {
 
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <span className="flex items-center gap-1">
-                    <FaClock className="text-[#3770bd]" />
+                    <FaClock style={{ color: 'var(--primary-color)' }} />
                     Created at: {String(user.created_at).split('T')[0]}
                   </span>
                 </div>

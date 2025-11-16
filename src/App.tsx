@@ -4,10 +4,7 @@ import { AdminSidebar } from './components/AdminSidebar';
 import { Dashboard } from './components/Dashboard';
 import { AllBookings } from './components/AllBookings';
 import { ResortManagement } from './components/ResortManagement';
-import { NewBooking } from './components/NewBooking';
-import { RoomManagement } from './components/RoomManagement';
 import { CottageManagement } from './components/CottageManagement';
-import { PhotoGalleryManager } from './components/PhotoGalleryManager';
 import { AdminManagement } from './components/AdminManagement';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuthContext } from './contexts/AuthContext';
@@ -24,14 +21,8 @@ function AppContent() {
 
   const handleSectionSelect = (section: string) => {
     console.log(`Selected section: ${section}`);
-    if (section === 'room-management') {
-      setActiveItem('room-management');
-    } else if (section === 'cottages-amenities') {
+    if (section === 'cottages-amenities') {
       setActiveItem('cottages-amenities');
-    } else if (section === 'photo-gallery') {
-      setActiveItem('photo-gallery');
-    } else if (section === 'room-gallery') {
-      setActiveItem('room-gallery');
     } else if (section === 'admin-settings') {
       setActiveItem('admin-settings');
     }
@@ -46,18 +37,10 @@ function AppContent() {
         return <Dashboard />;
       case 'manage':
         return <ResortManagement onSectionSelect={handleSectionSelect} />;
-      case 'room-management':
-        return <RoomManagement onBack={handleBackToManage} />;
       case 'cottages-amenities':
         return <CottageManagement onBack={handleBackToManage} />;
-      case 'photo-gallery':
-        return <PhotoGalleryManager onBack={handleBackToManage} onNavigate={handleSectionSelect} />;
-      case 'room-gallery':
-        return <RoomGalleryPage onBack={handleBackToManage} onNavigate={handleSectionSelect} />;
       case 'admin-settings':
         return <AdminManagement onBack={handleBackToManage} />;
-      case 'new-booking':
-        return <NewBooking />;
       case 'bookings':
         return <AllBookings />;
       default:
@@ -70,7 +53,7 @@ function AppContent() {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#3770bd] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[var(--primary-color)] mx-auto mb-4"></div>
           <p className="text-slate-600 text-lg">Loading...</p>
         </div>
       </div>

@@ -5,55 +5,55 @@
 
 :root {
   --font-size: 16px;
-  --background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
-  --background-solid: #f8fbff;
+  --background: #ffffff;
+  --background-solid: #ffffff;
   --foreground: #0f172a;
-  --card: rgba(255, 255, 255, 0.9);
+  --card: #ffffff;
   --card-foreground: #0f172a;
-  --popover: rgba(255, 255, 255, 0.95);
+  --popover: #ffffff;
   --popover-foreground: #0f172a;
-  --primary: linear-gradient(135deg, #3770bd 0%, #2c5aa0 100%);
-  --primary-solid: #3770bd;
+  --primary: linear-gradient(135deg, #e82574 0%, #bc1c5c 100%);
+  --primary-solid: #e82574;
   --primary-foreground: #ffffff;
-  --secondary: #f1f6fb;
-  --secondary-foreground: #334155;
-  --muted: #f1f6fb;
+  --secondary: #f8fafc;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
   --muted-foreground: #64748b;
-  --accent: linear-gradient(135deg, #4a90e2 0%, #3770bd 100%);
-  --accent-solid: #4a90e2;
+  --accent: linear-gradient(135deg, #ff7bba 0%, #e82574 100%);
+  --accent-solid: #ff7bba;
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(55, 112, 189, 0.2);
+  --border: rgba(0, 0, 0, 0.08);
   --input: transparent;
-  --input-background: rgba(255, 255, 255, 0.8);
-  --switch-background: #e2e8f0;
+  --input-background: #ffffff;
+  --switch-background: #f1f5f9;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #3770bd;
-  --chart-1: #3770bd;
-  --chart-2: #10b981;
+  --ring: #e82574;
+  --chart-1: #e82574;
+  --chart-2: #fb7185;
   --chart-3: #f59e0b;
-  --chart-4: #ef4444;
-  --chart-5: #8b5cf6;
-  --radius: 1rem;
-  --sidebar: linear-gradient(180deg, #1e293b 0%, #334155 100%);
-  --sidebar-solid: #1e293b;
-  --sidebar-foreground: #f8fafc;
-  --sidebar-primary: #3770bd;
+  --chart-4: #10b981;
+  --chart-5: #6366f1;
+  --radius: 12px;
+  --sidebar: #0c0a09;
+  --sidebar-solid: #0c0a09;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #e82574;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: #475569;
-  --sidebar-ring: #3770bd;
-  --pelagic-primary: #3770bd;
-  --pelagic-secondary: #4a90e2;
-  --pelagic-light: #e6f3ff;
-  --pelagic-dark: #2c5aa0;
-  --resort-coral: #ff6b6b;
+  --sidebar-accent: #1c1917;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #e82574;
+  --pelagic-primary: #e82574;
+  --pelagic-secondary: #ff7bba;
+  --pelagic-light: #fff1f5;
+  --pelagic-dark: #bc1c5c;
+  --resort-coral: #e82574;
   --resort-turquoise: #4ecdc4;
   --resort-sand: #f4e4bc;
-  --resort-ocean: #3770bd;
+  --resort-ocean: #e82574;
   --resort-sunset: #ff8c42;
 }
 
@@ -151,6 +151,7 @@
     background: var(--background);
     color: var(--foreground);
     min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
   }
 
   #root {
@@ -187,15 +188,15 @@
   }
 
   .pelagic-gradient-primary {
-    background: linear-gradient(135deg, #3770bd 0%, #2c5aa0 100%);
+    background: linear-gradient(135deg, #e82574 0%, #bc1c5c 100%);
   }
 
   .pelagic-gradient-secondary {
-    background: linear-gradient(135deg, #4a90e2 0%, #3770bd 100%);
+    background: linear-gradient(135deg, #ff7bba 0%, #e82574 100%);
   }
 
   .pelagic-gradient-light {
-    background: linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%);
+    background: linear-gradient(135deg, #fff1f5 0%, #ffe4e6 100%);
   }
 }
 

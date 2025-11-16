@@ -46,7 +46,7 @@ export function ModernLogin() {
           alt="Tropical Beach Resort"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#3770bd]/90 via-[#2c5aa0]/80 to-[#1e3a5f]/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#e82574]/90 via-[#bc1c5c]/85 to-[#7f1d1d]/90" />
       </div>
 
       {/* Floating Elements */}
@@ -64,8 +64,8 @@ export function ModernLogin() {
             <Waves className="w-10 h-10 text-white" />
           </div>
           <div className="text-white mb-2">
-            <div className="ethnocentric text-3xl tracking-wider">PELAGIC</div>
-            <div className="poppins text-sm font-medium tracking-[0.3em] opacity-90">BEACH RESORT</div>
+            <div className="ethnocentric text-3xl tracking-wider">VILLA PEREZ</div>
+            <div className="poppins text-sm font-medium tracking-[0.3em] opacity-90">RESORT</div>
           </div>
           <p className="text-white/70 text-sm">Admin Portal</p>
         </div>
@@ -124,7 +124,7 @@ export function ModernLogin() {
                   id="remember"
                   checked={remember}
                   onCheckedChange={(checked: any) => setRemember(checked as boolean)}
-                  className="border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-[#3770bd]"
+                  className="border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-[#e82574]"
                 />
                 <label htmlFor="remember" className="text-white/90 text-sm font-medium cursor-pointer">
                   Remember me for 30 days
@@ -142,11 +142,11 @@ export function ModernLogin() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-white text-[#3770bd] hover:bg-white/90 font-medium py-3 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
+                className="w-full bg-white text-[#e82574] hover:bg-white/90 font-medium py-3 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
               >
                 {loading ? (
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-[#3770bd]/30 border-t-[#3770bd] rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-[#e82574]/30 border-t-[#e82574] rounded-full animate-spin" />
                     <span>Signing in...</span>
                   </div>
                 ) : (
@@ -157,9 +157,7 @@ export function ModernLogin() {
 
             {/* Footer */}
             <div className="mt-8 text-center">
-              <p className="text-white/60 text-xs">
-                Secured by Pelagic Beach Resort
-              </p>
+              <p className="text-white/60 text-xs">Secured by Villa Perez Resort</p>
             </div>
           </CardContent>
         </Card>

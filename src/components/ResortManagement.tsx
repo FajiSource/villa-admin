@@ -22,49 +22,14 @@ interface ResortManagementProps {
 export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
   const managementSections = [
     {
-      id: 'room-management',
-      title: 'Room Management',
-      description: 'Add, edit, and delete room types',
-      icon: Bed,
-      gradient: 'from-blue-500 to-cyan-500',
-      actions: [
-        { label: 'Add Room Type', icon: Plus },
-        { label: 'Delete Rooms', icon: Trash2 }
-      ]
-    },
-    {
       id: 'cottages-amenities',
-      title: 'Cottages & Amenities',
-      description: 'Manage resort facilities and amenities',
+      title: 'Villas & Cottages',
+      description: 'Manage accommodations, images, amenities, and pricing',
       icon: TreePine,
       gradient: 'from-emerald-500 to-teal-500',
       actions: [
-        { label: 'Cottage Settings', icon: Home },
-        { label: 'Amenity Management', icon: Settings },
-        { label: 'Facility Updates', icon: Edit }
-      ]
-    },
-    {
-      id: 'photo-gallery',
-      title: 'Photo Gallery Manager',
-      description: 'Manage resort and room photography',
-      icon: Camera,
-      gradient: 'from-purple-500 to-pink-500',
-      actions: [
-        { label: 'Home Gallery', icon: Home },
-        { label: 'Room Photos', icon: ImageIcon },
-      ]
-    },
-    {
-      id: 'admin-settings',
-      title: 'Admin Settings',
-      description: 'User management and security settings',
-      icon: Shield,
-      gradient: 'from-orange-500 to-red-500',
-      actions: [
-        { label: 'Add Admin', icon: Plus },
-        { label: 'Remove Admin', icon: Trash2 },
-        { label: 'Change Password', icon: KeyRound }
+        { label: 'Add Accommodation', icon: Plus },
+        { label: 'Edit Amenities', icon: Edit }
       ]
     }
   ];
@@ -89,11 +54,11 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
             <Waves className="h-8 w-8 text-white" />
           </div>
           <div>
-            <h1 className="text-4xl font-bold text-[#3770bd]">
+            <h1 className="text-4xl font-bold text-[var(--primary-color)]">
               Resort Management
             </h1>
             <p className="text-slate-600 text-lg">
-              Manage all aspects of Pelagic Beach Resort
+              Manage all aspects of Villa Perez Resort
             </p>
           </div>
         </div>
@@ -109,11 +74,11 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
           >
             <CardHeader className="space-y-4">
               <div className="flex items-center space-x-4">
-                <div className={`p-4 rounded-xl bg-gradient-to-r ${section.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <section.icon className="h-8 w-8 text-white" />
+                <div className={`p-4 rounded-xl bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)] shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <section.icon className="h-8 w-8 text-[var(--primary-color)]" />
                 </div>
                 <div className="flex-1">
-                  <CardTitle className="text-xl text-slate-800 group-hover:text-blue-600 transition-colors">
+                  <CardTitle className="text-xl text-slate-800" style={{ color: 'var(--foreground)' }}>
                     {section.title}
                   </CardTitle>
                   <CardDescription className="text-slate-600 mt-1">
@@ -129,18 +94,19 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
                   <Button
                     key={index}
                     variant="outline"
-                    className="w-full justify-start space-x-3 bg-white/50 border-slate-200 hover:bg-white hover:border-black-300 hover:text-black-600 transition-all duration-200"
+                    className="w-full justify-start space-x-3 bg-white/50 border-slate-200 hover:bg-white transition-all duration-200"
+                    style={{ borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}
                     // onClick={(e) => handleActionClick(e, action.label, section.id)}
                   >
-                    <action.icon className="h-4 w-4" />
-                    <span>{action.label}</span>
+                    <action.icon className="h-4 w-4 text-[var(--primary-color)]" />
+                    <span className='text-[var(--primary-color)]'>{action.label}</span>
                   </Button>
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-slate-200">
+              <div className="pt-4 bg border-t border-slate-200">
                 <Button 
-                  className={`w-full bg-gradient-to-r ${section.gradient} hover:opacity-90 text-white shadow-lg transform hover:scale-105 transition-all duration-200`}
+                  className={`text-[var(--primary-color)] w-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)] hover:opacity-90 text-black shadow-lg transform hover:scale-105 transition-all duration-200`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCardClick(section.id);

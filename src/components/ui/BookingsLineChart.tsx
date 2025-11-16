@@ -19,14 +19,14 @@ export default function BookingsLineChart() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await apiService.get("/admin/bookings/per-year"); 
-        console.log(res.data)
-        if (res.data.success) {
-          setData(res.data.data.map(item => ({
-            year: item.year,
-            bookings: item.total,
-          })));
-        }
+        const res = await apiService.get("/api/stats/bookings-per-year");
+        if (res.data?.data) {
+          const rows = res.data.data.map((item: any) => ({
+            year: Number(item.year),
+            bookings: Number(item.total),
+          }));
+          setData(rows);
+        } else setData([]);
       } catch (error) {
         console.error("Error fetching bookings per year:", error);
       } finally {
@@ -45,7 +45,7 @@ export default function BookingsLineChart() {
 
   return (
     <div className="w-full h-[400px] p-4 bg-white shadow-md rounded mt-6">
-      <h2 className="text-xl font-semibold mb-4 text-[#3770bd]">Bookings Per Year</h2>
+      <h2 className="text-xl font-semibold mb-4 text-[var(--primary-color)]">Bookings Per Year</h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -61,7 +61,7 @@ export default function BookingsLineChart() {
           <Tooltip 
             contentStyle={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              border: '1px solid #3770bd',
+              border: '1px solid var(--primary-color)',
               borderRadius: '12px',
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
             }}
@@ -70,10 +70,10 @@ export default function BookingsLineChart() {
           <Line
             type="monotone"
             dataKey="bookings"
-            stroke="#3770bd"
+            stroke="var(--primary-color)"
             strokeWidth={3}
-            dot={{ fill: "#3770bd", strokeWidth: 2, r: 6 }}
-            activeDot={{ r: 8, fill: "#2c5aa0" }}
+            dot={{ fill: "var(--primary-color)", strokeWidth: 2, r: 6 }}
+            activeDot={{ r: 8, fill: "var(--primary-color-dark)" }}
           />
         </LineChart>
       </ResponsiveContainer>

@@ -121,6 +121,8 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
     type: '',
     prices: [{ description: '', price: '' }],
     amenities: [''],
+    capacity: '',
+    status: 'Available',
   });
   const [image, setImage] = useState<File | null>(null);
 
@@ -168,8 +170,14 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
       const formData = new FormData();
       formData.append("name", form.name);
       formData.append("type", form.type);
+      if (form.capacity) formData.append("capacity", String(form.capacity));
+      if (form.status) formData.append("status", form.status);
       if (image) formData.append("image", image);
 
+      // Map first price to price_per_night
+      const firstPrice = form.prices?.[0]?.price;
+      if (firstPrice) formData.append('price_per_night', String(firstPrice));
+      // Optional: still include original prices fields for future-proofing
       form.prices.forEach((p, i) => {
         formData.append(`prices[${i}][description]`, p.description);
         formData.append(`prices[${i}][price]`, p.price);
@@ -178,7 +186,7 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
 
       try {
         await createNewAccomodation(formData);
-        setForm({ name: "", type: "", prices: [{ description: "", price: "" }], amenities: [""] });
+        setForm({ name: "", type: "", prices: [{ description: "", price: "" }], amenities: [""], capacity: "", status: "Available" });
         setImage(null);
         addToast("success", "Accommodation created successfully!");
         setIsAddModalOpen(false);
@@ -291,10 +299,10 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
 
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg">
+            <button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg inline-flex items-center justify-center h-10 px-4 py-2 rounded-md">
               <Plus className="h-4 w-4 mr-2" />
               Add Accommodation
-            </Button>
+            </button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
             <DialogHeader>
@@ -330,10 +338,36 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="room">Room</SelectItem>
-                      <SelectItem value="villa">Villa</SelectItem>
-                      <SelectItem value="cottage">Cottage</SelectItem>
-                      <SelectItem value="family_room">Family Room</SelectItem>
+                      <SelectItem value="Room">Room</SelectItem>
+                      <SelectItem value="Villa">Villa</SelectItem>
+                      <SelectItem value="Cottage">Cottage</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="capacity">Capacity</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    placeholder="e.g., 4"
+                    value={form.capacity}
+                    onChange={(e) => handleChange('capacity', e.target.value)}
+                    className="bg-white/80 border-cyan-200 focus:border-cyan-400"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={form.status} onValueChange={(value) => handleChange('status', value)} required>
+                    <SelectTrigger className="bg-white/80 border-cyan-200 focus:border-cyan-400">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Available">Available</SelectItem>
+                      <SelectItem value="Booked">Booked</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -511,9 +545,9 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                         </div>
 
                         <div className="flex flex-wrap gap-1">
-                          {cottage.amenities.slice(0, 3)?.map((amenity) => (
+                          {cottage.amenities.slice(0, 3)?.map((amenity, idx) => (
                             <Badge
-                              key={amenity.id}
+                              key={amenity.id ?? amenity.name ?? idx}
                               variant="secondary"
                               className="bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 text-purple-800 text-xs"
                             >

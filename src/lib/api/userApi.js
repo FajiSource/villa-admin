@@ -2,7 +2,17 @@ import apiService from "../../services/apiService"
 
 export const registerNewUser = async (data) => {
     try {
-        const newUser = await apiService.post("/admin/user", { ...data })
+        const name = [data.fname, data.lname].filter(Boolean).join(' ').trim();
+        const username = data.username || (data.email ? data.email.split('@')[0] : name.replace(/\s+/g, '').toLowerCase());
+        const payload = {
+            email: data.email,
+            username,
+            phone: data.phone || null,
+            name: name || username,
+            password: data.password,
+            role: data.role || 'admin'
+        };
+        const newUser = await apiService.post("/api/register", payload)
         if (newUser.status !== 200) {
             return {
                 success: false,
@@ -20,16 +30,8 @@ export const registerNewUser = async (data) => {
 
 export const getAdminUsers = async () => {
     try {
-        const users = await apiService("/admin/users");
-        if (!users.status === 200) {
-            return {
-                success: false,
-                message: "Failed to Fetch Users."
-            }
-        }
-        console.log("users: " ,users);
-
-        return users.data
+        const res = await apiService.get("/api/users/latest");
+        return res.data?.data || [];
     } catch (error) {
         throw error
     }
@@ -37,23 +39,34 @@ export const getAdminUsers = async () => {
 
 export const getLatestuUsers = async () => {
     try {
-        const users = await apiService("/admin/users/latest");
-        if (!users.status === 200) {
-            return {
-                success: false,
-                message: "Failed to Fetch Users."
-            }
-        }
-        return users.data
+        const res = await apiService.get("/api/users/latest");
+        return res.data?.data || [];
     } catch (error) {
-        return  error
+        return [];
     }
 }
 
+export const getAdmins = async () => {
+    try {
+        const res = await apiService.get("/api/users/admins");
+        return res.data?.data || [];
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getCustomers = async () => {
+    try {
+        const res = await apiService.get("/api/users/customers");
+        return res.data?.data || [];
+    } catch (error) {
+        throw error;
+    }
+}
 
 export const deleteAdminUser = async (userID) => {
     try {
-        await apiService.delete(`/admin/user/${userID}`);
+        await apiService.delete(`/api/users/${userID}`);
     } catch (error) {
         throw error
     }

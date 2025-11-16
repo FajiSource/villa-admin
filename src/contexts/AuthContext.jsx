@@ -1,93 +1,52 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getCurrentUser } from "../lib/api/authApi";
 
-
-export const INITIAL_USER = {
-    id: "",
-    email: "",
-    lname: "",
-    fname: "",
-    role: ""
-}
-
-export const INITIAL_STATE = {
-    user: INITIAL_USER,
-    isLoading: false,
-    isAuthenticated: false,
-    setUser: () => { },
-    setIsAuthenticated: () => { },
-    checkAuthUser: async () => false,
-    login: (token) => { },
-    logout: () => { },
+const INITIAL_STATE = {
+  isAuthenticated: false,
+  token: null,
+  login: (token) => {},
+  logout: () => {},
 };
 
-const AuthContext = createContext(INITIAL_STATE)
+const AuthContext = createContext(INITIAL_STATE);
 
 const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(INITIAL_USER);
-    const [isLoading, setIsLoading] = useState(false)
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("token"));
+  const [isLoading, setIsLoading] = useState(false);
 
-    const checkAuthUser = async () => {
-        try {
-            const currentUser = await getCurrentUser();
-            // console.log(currentUser)
-            const userData = currentUser.user.data;
-            if (currentUser) {
-                setUser({
-                    id: userData.id,
-                    email: userData.email,
-                    fname: userData.fname,
-                    lname: userData.lname,
-                    role: userData.role
-                })
-                setIsAuthenticated(true)
-                return true;
-            }
-            return false
-        } catch (error) {
-            console.log(error)
-            setIsAuthenticated(false)
-            return false
-        } finally {
-            setIsLoading(false);
-        }
-    }
-    const login = (token) => {
-        localStorage.setItem('pelagicAdminToken', token);
-        setIsAuthenticated(true);
-        console.log("user logged in with token:", token);
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "token") {
+        setToken(e.newValue);
+        setIsAuthenticated(!!e.newValue);
+      }
     };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
-    const logout = () => {
-        localStorage.removeItem('pelagicAdminToken');
-        setIsAuthenticated(false);
-        console.log("user logged out");
-    };
-    useEffect(() => {
-        setIsLoading(true)
-        if (localStorage.getItem('pelagicAdminToken') === null) console.log("no user")
-        checkAuthUser();
-    }, [])
+  const login = (newToken) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+    setIsAuthenticated(true);
+  };
 
-    const value = {
-        user,
-        isLoading,
-        isAuthenticated,
-        setUser,
-        setIsAuthenticated,
-        checkAuthUser,
-        login,
-        logout
-    }
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setIsAuthenticated(false);
+  };
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
+  const value = {
+    isAuthenticated,
+    isLoading,
+    token,
+    login,
+    logout,
+  };
 
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
-export default AuthProvider
-export const useAuthContext = () => useContext(AuthContext)
+export default AuthProvider;
+export const useAuthContext = () => useContext(AuthContext);

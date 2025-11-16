@@ -3,12 +3,12 @@ import apiService from "../../services/apiService"
 // user
 export const signInUser = async ({email,password}) => {
     try {
-        const response = await apiService.post("/login",
+        const response = await apiService.post("/api/login",
             {
                 email,password
             }
         );
-        if (!response.status === 200) {
+        if (response.status !== 200) {
             return {success:false,message: "Login failed"}
         }
         return {
@@ -23,9 +23,9 @@ export const signInUser = async ({email,password}) => {
 
 export const getCurrentUser = async () => {
     try {
-        const res = await apiService.get("/user")
+        const res = await apiService.get("/api/user")
 
-        if(!res.status === 200){
+        if(res.status !== 200){
             return {
                 success:false,
                 message: "Something went wrong."
@@ -33,14 +33,14 @@ export const getCurrentUser = async () => {
         }
         return {
             success:true,
-            user: res
+            user: res.data
         }
     } catch (error) {
         throw error
     }
 }
 export const logout = async (token) => {
-    return await apiService.post(`/logout`,
+    return await apiService.post(`/api/logout`,
         {},
         {
             headers: {
