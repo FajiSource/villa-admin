@@ -12,7 +12,8 @@ import {
   Shield,
   KeyRound,
   Waves,
-  TreePine
+  TreePine,
+  Megaphone
 } from 'lucide-react';
 
 interface ResortManagementProps {
@@ -30,6 +31,17 @@ export function ResortManagement({ onSectionSelect }: ResortManagementProps) {
       actions: [
         { label: 'Add Accommodation', icon: Plus },
         { label: 'Edit Amenities', icon: Edit }
+      ]
+    },
+    {
+      id: 'announcements',
+      title: "What's New Today",
+      description: 'Create and manage announcements and news for clients',
+      icon: Megaphone,
+      gradient: 'from-purple-500 to-pink-500',
+      actions: [
+        { label: 'Add Announcement', icon: Plus },
+        { label: 'Manage Content', icon: Edit }
       ]
     }
   ];

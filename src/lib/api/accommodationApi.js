@@ -24,6 +24,39 @@ export const getAccommodations = async () => {
     }
 };
 
+// Update villa/cottage/room by id
+export const updateAccommodation = async (id, data) => {
+    try {
+        // Laravel requires POST with _method=PUT for multipart/form-data
+        // Create a new FormData to avoid modifying the original
+        const formData = new FormData();
+        
+        // Copy all entries from original FormData
+        if (data instanceof FormData) {
+            for (const [key, value] of data.entries()) {
+                formData.append(key, value);
+            }
+        } else {
+            // If it's a plain object, convert to FormData
+            for (const [key, value] of Object.entries(data)) {
+                formData.append(key, value);
+            }
+        }
+        
+        // Add _method=PUT for Laravel method spoofing
+        formData.append('_method', 'PUT');
+        
+        const res = await apiService.post(`/api/villas/${id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Error updating accommodation:", error);
+        console.error("Error details:", error.response?.data || error.message);
+        throw error.response?.data || error.message;
+    }
+};
+
 // Delete by id
 export const deleteAccommodation = async (id) => {
     try {

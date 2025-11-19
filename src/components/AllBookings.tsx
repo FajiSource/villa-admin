@@ -11,6 +11,7 @@ import {
   Eye,
   CheckCircle,
   XCircle,
+  Star,
 } from "lucide-react";
 import Header from "./customs/Header";
 import { Card, CardContent } from "./ui/card";
@@ -51,8 +52,13 @@ type Booking = {
   image?: string | null;
   status?: string | null;
   booking_status?: string | null;
-  is_approved?:  number | null;
+  is_approved?: number | null;
   accommodation_id: number | string | null;
+  feedback?: {
+    rating: number;
+    comment?: string;
+    created_at: string;
+  } | null;
 };
 
 type DateFilter = "all" | "today" | "yesterday";
@@ -172,12 +178,17 @@ export function AllBookings() {
 
   const getBookingStatus = (
     booking: Booking
-  ): "approved" | "declined" | "pending" => {
+  ): "approved" | "declined" | "pending" | "cancelled" => {
     // Check various possible status fields
-    const status = (booking.status || booking.booking_status || 'pending').toLowerCase();
-    if (status === 'approved') return 'approved';
-    if (status === 'declined') return 'declined';
-    return 'pending';
+    const status = (
+      booking.status ||
+      booking.booking_status ||
+      "pending"
+    ).toLowerCase();
+    if (status === "approved") return "approved";
+    if (status === "declined") return "declined";
+    if (status === "cancelled" || status === "canceled") return "cancelled";
+    return "pending";
   };
 
   const handleApprove = async (bookingId: number | string) => {
@@ -310,6 +321,75 @@ export function AllBookings() {
     }
   };
 
+  const handleCancel = async (bookingId: number | string) => {
+    if (!confirm("Are you sure you want to cancel this booking?")) {
+      return;
+    }
+
+    setProcessingBooking(bookingId);
+    try {
+      const res = await apiService.delete(`/api/bookings/${bookingId}`);
+      if (res.data.success) {
+        addToast("success", "Booking cancelled successfully!");
+        // Refresh bookings
+        const refreshRes = await apiService.get("/api/bookings");
+        if (refreshRes.data.success) {
+          const updatedBookings = refreshRes.data.data;
+          setBookings(updatedBookings);
+          // Reapply filters with updated data
+          let filtered = [...updatedBookings];
+
+          // Apply date filter
+          if (filter === "today") {
+            filtered = filtered.filter((b) => {
+              const bookingDate = new Date(b.booking_date);
+              const today = new Date();
+              return bookingDate.toDateString() === today.toDateString();
+            });
+          } else if (filter === "yesterday") {
+            filtered = filtered.filter((b) => {
+              const bookingDate = new Date(b.booking_date);
+              const yesterday = new Date();
+              yesterday.setDate(yesterday.getDate() - 1);
+              return bookingDate.toDateString() === yesterday.toDateString();
+            });
+          }
+
+          // Apply search filter
+          if (searchTerm) {
+            filtered = filtered.filter(
+              (b) =>
+                b.customer_name
+                  .toLowerCase()
+                  .includes(searchTerm.toLowerCase()) ||
+                b.contact_number.includes(searchTerm) ||
+                (b.room_type &&
+                  b.room_type
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())) ||
+                (b.cottage_type &&
+                  b.cottage_type
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()))
+            );
+          }
+
+          setFilteredBookings(filtered);
+        }
+      } else {
+        addToast("danger", res.data.message || "Failed to cancel booking");
+      }
+    } catch (error: any) {
+      console.error("Error cancelling booking:", error);
+      addToast(
+        "danger",
+        error.response?.data?.message || "Failed to cancel booking"
+      );
+    } finally {
+      setProcessingBooking(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-full w-full p-8 bg-pelagic-gradient-light overflow-auto">
@@ -431,18 +511,31 @@ export function AllBookings() {
                     {/* Approval status badge */}
                     {(() => {
                       const s = getBookingStatus(booking);
-                      if (s === 'approved') {
+                      if (s === "approved") {
                         return (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Approved</Badge>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            Approved
+                          </Badge>
                         );
                       }
-                      if (s === 'declined') {
+                      if (s === "declined") {
                         return (
-                          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Declined</Badge>
+                          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+                            Declined
+                          </Badge>
+                        );
+                      }
+                      if (s === "cancelled") {
+                        return (
+                          <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                            Cancelled
+                          </Badge>
                         );
                       }
                       return (
-                        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>
+                        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                          Pending
+                        </Badge>
                       );
                     })()}
                   </div>
@@ -450,7 +543,10 @@ export function AllBookings() {
 
                 {/* Contact Info */}
                 <div className="flex items-center gap-2 mb-4 text-slate-600">
-                  <Phone className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
+                  <Phone
+                    className="w-4 h-4"
+                    style={{ color: "var(--primary-color)" }}
+                  />
                   <span className="text-sm">{booking.contact_number}</span>
                 </div>
 
@@ -474,7 +570,10 @@ export function AllBookings() {
                 <div className="space-y-3 mb-4">
                   {booking.room_type && (
                     <div className="flex items-center gap-3">
-                      <Bed className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
+                      <Bed
+                        className="w-4 h-4"
+                        style={{ color: "var(--primary-color)" }}
+                      />
                       <span className="text-sm text-slate-600">
                         {booking.room_type} ({booking.room_quantity})
                       </span>
@@ -482,14 +581,20 @@ export function AllBookings() {
                   )}
                   {booking.cottage_type && (
                     <div className="flex items-center gap-3">
-                      <MapPin className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
+                      <MapPin
+                        className="w-4 h-4"
+                        style={{ color: "var(--primary-color)" }}
+                      />
                       <span className="text-sm text-slate-600">
                         {booking.cottage_type} ({booking.cottage_quantity})
                       </span>
                     </div>
                   )}
                   <div className="flex items-center gap-3">
-                    <User className="w-4 h-4" style={{ color: 'var(--primary-color)' }} />
+                    <User
+                      className="w-4 h-4"
+                      style={{ color: "var(--primary-color)" }}
+                    />
                     <span className="text-sm text-slate-600">
                       {booking.entrance_guests} guests
                     </span>
@@ -551,87 +656,161 @@ export function AllBookings() {
                     )}
                   </div>
                 </div>
-                {(() => {
-                  const s = getBookingStatus(booking);
-                  return s === 'pending';
-                })() ? (
+
+                {/* Feedback Section */}
+                {booking.feedback && (
                   <div className="mt-4 border-t border-slate-100 pt-4">
-                    {(() => {
-                      // Show buttons for pending bookings only
-                      return (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleApprove(booking.id)}
-                            disabled={processingBooking === booking.id}
-                            className="flex-1 resort-gradient-primary text-white hover:opacity-90"
-                          >
-                            {processingBooking === booking.id ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Approve
-                              </>
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDecline(booking.id)}
-                            disabled={processingBooking === booking.id}
-                            className="flex-1 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 hover:text-red-700 flex items-center justify-center"
-                          >
-                            {processingBooking === booking.id ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Decline
-                              </>
-                            )}
-                          </Button>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star
+                          className="w-4 h-4"
+                          style={{ color: "var(--primary-color)" }}
+                        />
+                        <span className="text-sm font-semibold text-green-800">
+                          Customer Feedback
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-4 h-4 ${
+                                star <= booking.feedback!.rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
                         </div>
-                      );
-                    })()}
+                        <span className="text-xs text-slate-600">
+                          ({booking.feedback.rating}/5)
+                        </span>
+                      </div>
+                      {booking.feedback.comment && (
+                        <p className="text-sm text-green-700 mb-2">
+                          {booking.feedback.comment}
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-500">
+                        Submitted on{" "}
+                        {new Date(
+                          booking.feedback.created_at
+                        ).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                ) : (
-                  // approved or declined badge
+                )}
+
+                {booking.status !== "completed" && (
                   <div className="mt-4 border-t border-slate-100 pt-4">
                     {(() => {
                       const bookingStatus = getBookingStatus(booking);
- 
-                       if (bookingStatus === "approved") {
-                         return (
-                           <div className="flex items-center justify-center">
-                             <Badge className="bg-green-100 text-green-800 hover:bg-green-100 px-4 py-2 text-sm font-semibold">
-                               <CheckCircle className="w-4 h-4 mr-2 inline" />
-                               Approved
-                             </Badge>
-                           </div>
-                         );
-                       }
- 
-                       if (bookingStatus === "declined") {
-                         return (
-                           <div className="flex items-center justify-center">
-                             <Badge className="bg-red-100 text-red-800 hover:bg-red-100 px-4 py-2 text-sm font-semibold">
-                               <XCircle className="w-4 h-4 mr-2 inline" />
-                               Declined
-                             </Badge>
-                           </div>
-                         );
-                       }
-                     })()}
-                   </div>
-                 )}
+
+                      // Show action buttons for pending bookings
+                      if (bookingStatus === "pending") {
+                        return (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleApprove(booking.id)}
+                              disabled={processingBooking === booking.id}
+                              className="flex-1 resort-gradient-primary text-white hover:opacity-90"
+                            >
+                              {processingBooking === booking.id ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Approve
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDecline(booking.id)}
+                              disabled={processingBooking === booking.id}
+                              className="flex-1 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 hover:text-red-700 flex items-center justify-center"
+                            >
+                              {processingBooking === booking.id ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="w-4 h-4 mr-2" />
+                                  Decline
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        );
+                      }
+
+                      // Show cancel button for approved bookings (admin can cancel)
+                      if (bookingStatus === "approved") {
+                        return (
+                          <div className="flex items-center justify-center gap-2">
+                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100 px-4 py-2 text-sm font-semibold">
+                              <CheckCircle className="w-4 h-4 mr-2 inline" />
+                              Approved
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCancel(booking.id)}
+                              disabled={processingBooking === booking.id}
+                              className="border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 hover:text-orange-700"
+                            >
+                              {processingBooking === booking.id ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-600 mr-2"></div>
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="w-4 h-4 mr-2" />
+                                  Cancel
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        );
+                      }
+
+                      // Show status badge for declined or cancelled bookings
+                      if (bookingStatus === "declined") {
+                        return (
+                          <div className="flex items-center justify-center">
+                            <Badge className="bg-red-100 text-red-800 hover:bg-red-100 px-4 py-2 text-sm font-semibold">
+                              <XCircle className="w-4 h-4 mr-2 inline" />
+                              Declined
+                            </Badge>
+                          </div>
+                        );
+                      }
+
+                      if (bookingStatus === "cancelled") {
+                        return (
+                          <div className="flex items-center justify-center">
+                            <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100 px-4 py-2 text-sm font-semibold">
+                              <XCircle className="w-4 h-4 mr-2 inline" />
+                              Cancelled
+                            </Badge>
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })()}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

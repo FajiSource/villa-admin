@@ -6,7 +6,8 @@ import {
   Home,
   Users,
   TreePine,
- 
+  Edit,
+  Trash2,
 } from 'lucide-react';
  
 interface Price {
@@ -43,11 +44,12 @@ interface AccommodationDetailsProps {
   accommodation: Cottage;
   onBack: () => void;
   onDelete: (id: number) => void;
+  onEdit?: (accommodation: Cottage) => void;
   refetch: () => void;
 }
 
 
-export function AccommodationDetails({ accommodation, onBack, onDelete, refetch }: AccommodationDetailsProps) {
+export function AccommodationDetails({ accommodation, onBack, onDelete, onEdit, refetch }: AccommodationDetailsProps) {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'villa': return Building;
@@ -110,6 +112,24 @@ export function AccommodationDetails({ accommodation, onBack, onDelete, refetch 
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
+            <div className="flex items-center gap-2">
+              {onEdit && (
+                <Button
+                  onClick={() => onEdit(accommodation)}
+                  className="bg-blue-500/90 text-white hover:bg-blue-600 border-0 shadow-lg"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              )}
+              <Button
+                onClick={() => onDelete(accommodation.id)}
+                className="bg-red-500/90 text-white hover:bg-red-600 border-0 shadow-lg"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-3">

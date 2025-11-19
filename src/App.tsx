@@ -6,6 +6,7 @@ import { AllBookings } from './components/AllBookings';
 import { ResortManagement } from './components/ResortManagement';
 import { CottageManagement } from './components/CottageManagement';
 import { AdminManagement } from './components/AdminManagement';
+import { RescheduleRequests } from './components/RescheduleRequests';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuthContext } from './contexts/AuthContext';
 import AuthProvider from "./contexts/AuthContext"
@@ -14,6 +15,7 @@ import { TooltipProvider } from './components/ui/tooltip';
 import QueryProvider from './lib/react-query/QueryProvider';
 import { ToastProvider } from './contexts/ToastContext';
 import RoomGalleryPage from './components/RoomGalleryPage';
+import { AnnouncementManagement } from './components/AnnouncementManagement';
 
 function AppContent() {
   const { isAuthenticated, isLoading: loading } = useAuthContext();
@@ -25,6 +27,8 @@ function AppContent() {
       setActiveItem('cottages-amenities');
     } else if (section === 'admin-settings') {
       setActiveItem('admin-settings');
+    } else if (section === 'announcements') {
+      setActiveItem('announcements');
     }
   };
   const handleBackToManage = () => {
@@ -41,8 +45,12 @@ function AppContent() {
         return <CottageManagement onBack={handleBackToManage} />;
       case 'admin-settings':
         return <AdminManagement onBack={handleBackToManage} />;
+      case 'announcements':
+        return <AnnouncementManagement onBack={handleBackToManage} />;
       case 'bookings':
         return <AllBookings />;
+      case 'reschedule-requests':
+        return <RescheduleRequests />;
       default:
         return <Dashboard />;
     }

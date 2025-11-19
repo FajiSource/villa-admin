@@ -307,7 +307,7 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
                 <div className="p-3 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)]">
-                  <Users className="h-6 w-6 text-white" />
+                  <Users className="h-6 w-6 text-pink-500!" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-600">Total Admins</p>
@@ -321,7 +321,7 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
                 <div className="p-3 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)]">
-                  <Crown className="h-6 w-6 text-white" />
+                  <Crown className="h-6 w-6 text-pink-500! " />
                 </div>
                 <div>
                   <p className="text-sm text-slate-600">Total Users</p>
@@ -335,7 +335,7 @@ export function AdminManagement({ onBack }: AdminManagementProps) {
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
                 <div className="p-3 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-color-dark)]">
-                  <Shield className="h-6 w-6 text-white" />
+                  <Shield className="h-6 w-6 text-pink-500" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-600">Active Today</p>

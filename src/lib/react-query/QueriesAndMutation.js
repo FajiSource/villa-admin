@@ -3,10 +3,12 @@ import { addHomePhoto, deleteHomePost, getHomePhotos, updateHomePhoto } from "..
 import { QUERY_KEYS } from "./queryKey";
 import { deleteRoomPost, getRoomPhotos, newRoomGallery } from "../api/roomGalleryApi";
 import { changeAdminPassword, deleteAdminUser, getAdminUsers, getLatestuUsers, registerNewUser, getAdmins, getCustomers } from "../api/userApi";
-import { addAccommodationImage, addSchedule, deleteAccommodationImage, getAccommodationImages, getAccommodations, getSchedules, newAccommodation } from "../api/accommodationApi";
+import { addAccommodationImage, addSchedule, deleteAccommodationImage, getAccommodationImages, getAccommodations, getSchedules, newAccommodation, updateAccommodation, deleteAccommodation } from "../api/accommodationApi";
 import { getRatingTotals } from "../api/ratingApi";
 import { getTodayBookingCount } from "../api/bookingApi";
 import { deleteRoomType, getRoomTypes, newRoomType } from "../api/roomTypeApi";
+import { getFeedbackStatistics } from "../api/feedbackApi";
+import { getAnnouncements, newAnnouncement, updateAnnouncement, deleteAnnouncement } from "../api/announcementApi";
 
 // home gallery
 export const useAddHomePhoto = () => {
@@ -172,6 +174,30 @@ export const useGetAccommodations = () => {
   })
 }
 
+export const useUpdateAccommodation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }) => updateAccommodation(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ACCOMODATIONS],
+      });
+    },
+  });
+};
+
+export const useDeleteAccommodation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => deleteAccommodation(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ACCOMODATIONS],
+      });
+    },
+  });
+};
+
 export const useGetAccommodationImages = (accommodationId) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_ACCOMODATION_IMAGES, accommodationId],
@@ -242,6 +268,57 @@ export const useGetBookingsTodayCount = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_TODAY_BOOKINGS_COUNT],
     queryFn: getTodayBookingCount
+  });
+};
+
+export const useGetFeedbackStatistics = (year = null) => {
+  return useQuery({
+    queryKey: ['feedback-statistics', year || new Date().getFullYear()],
+    queryFn: () => getFeedbackStatistics(year || new Date().getFullYear())
+  });
+};
+
+// Announcements
+export const useGetAnnouncements = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_ANNOUNCEMENTS],
+    queryFn: getAnnouncements
+  });
+};
+
+export const useAddNewAnnouncement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => newAnnouncement(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ANNOUNCEMENTS],
+      });
+    },
+  });
+};
+
+export const useUpdateAnnouncement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }) => updateAnnouncement(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ANNOUNCEMENTS],
+      });
+    },
+  });
+};
+
+export const useDeleteAnnouncement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => deleteAnnouncement(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ANNOUNCEMENTS],
+      });
+    },
   });
 };
 

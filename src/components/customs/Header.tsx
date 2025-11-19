@@ -7,7 +7,7 @@ interface HeaderProps {
 
 export default function Header({ title }: HeaderProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl resort-gradient-primary p-8 shadow-2xl mb-8">
+    <div className="relative overflow-hidden  resort-gradient-primary p-8 shadow-2xl mb-8">
       <div className="absolute inset-0 bg-black/10" />
       <div className="relative">
         <div className="flex items-center space-x-4">

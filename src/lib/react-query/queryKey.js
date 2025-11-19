@@ -7,6 +7,7 @@ export const QUERY_KEYS  = {
     GET_RATINGS: 'getRatingTotals',
     GET_TODAY_BOOKINGS_COUNT: 'getTodayBookingCount',
     GET_ROOM_TYPES: "GET_ROOM_TYPES",
-    GET_SCHEDULES: "getSchedules"
+    GET_SCHEDULES: "getSchedules",
+    GET_ANNOUNCEMENTS: 'getAnnouncements'
 
 }

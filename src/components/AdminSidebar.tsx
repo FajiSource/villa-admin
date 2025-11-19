@@ -4,7 +4,8 @@ import {
   CalendarPlus,
   BookOpen,
   LogOut,
-  Palmtree
+  Palmtree,
+  CalendarClock
 } from 'lucide-react';
 import Logo from './Logo';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -47,6 +48,11 @@ export function AdminSidebar({ activeItem, onItemSelect }: AdminSidebarProps) {
       title: "All Bookings",
       icon: BookOpen,
       key: "bookings"
+    },
+    {
+      title: "Reschedule Requests",
+      icon: CalendarClock,
+      key: "reschedule-requests"
     }
   ];
 
