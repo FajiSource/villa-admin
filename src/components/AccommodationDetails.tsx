@@ -9,6 +9,7 @@ import {
   Edit,
   Trash2,
 } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUtils';
  
 interface Price {
   id: number;
@@ -71,8 +72,9 @@ export function AccommodationDetails({ accommodation, onBack, onDelete, onEdit, 
     });
   };
 
-  // Normalize fields from backend shape
-  const imageSrc = (accommodation as any).imageUrl || (accommodation as any).image || '';
+  // Normalize fields from backend shape and process image URL
+  const rawImageSrc = (accommodation as any).imageUrl || (accommodation as any).image || '';
+  const imageSrc = rawImageSrc ? getImageUrl(rawImageSrc) : '';
   const normalizedPrices = Array.isArray((accommodation as any).prices)
     ? (accommodation as any).prices
     : ((accommodation as any).price

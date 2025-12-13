@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAddHomePhoto, useDeletePhoto, useGetHomePhotos, useUpdateHomePhoto } from '../lib/react-query/QueriesAndMutation';
 import { useToast } from '../contexts/ToastContext';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface HomePhoto {
   id: number;
@@ -155,8 +156,7 @@ export function PhotoGalleryManager({ onBack, onNavigate }: PhotoGalleryManagerP
   };
 
   const viewImage = (url: string) => {
-    // Mock image URL - replace with your actual image URL logic
-    return `${import.meta.env.VITE_STORAGE_URL}/${url}`;
+    return getImageUrl(url);
   };
 
   const formatDate = (dateString: string) => {

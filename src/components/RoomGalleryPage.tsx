@@ -5,6 +5,7 @@ import { useToast } from "../contexts/ToastContext";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { getImageUrl } from '../utils/imageUtils';
 
 interface RoomGalleryPageProps {
   onBack: () => void;
@@ -58,27 +59,6 @@ export default function RoomGalleryPage({ onBack, onNavigate }: RoomGalleryPageP
     }
   };
 
-  const getImageUrl = (imageUrl: string) => {
-    if (imageUrl.startsWith('http')) {
-      return imageUrl;
-    }
-    
-    const storageUrl = typeof import.meta.env !== 'undefined' && import.meta.env.VITE_STORAGE_URL
-      ? import.meta.env.VITE_STORAGE_URL
-      : '';
-    
-    if (storageUrl) {
-      return `${storageUrl}/${imageUrl}`;
-    }
-    
-    const imageMap: { [key: string]: string } = {
-      'room-ocean-1.jpg': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop',
-      'room-beach-2.jpg': 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
-      'room-garden-3.jpg': 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&h=600&fit=crop'
-    };
-    
-    return imageMap[imageUrl] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop';
-  };
 
   return (
     <section className="min-h-screen w-full bg-gradient-to-br from-slate-50 to-blue-50 overflow-y-auto">

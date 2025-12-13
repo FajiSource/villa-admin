@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useAddNewAccommodation, useGetAccommodations, useUpdateAccommodation, useDeleteAccommodation } from '../lib/react-query/QueriesAndMutation';
 import { useToast } from '../contexts/ToastContext';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface Price {
   id: number;
@@ -821,7 +822,7 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                       {cottage.imageUrl && (
                         <div className="relative h-48 w-full">
                           <img
-                            src={`${import.meta.env.VITE_STORAGE_URL}/${cottage.imageUrl}`}
+                            src={getImageUrl(cottage.imageUrl)}
                             alt={cottage.name}
                             className="h-full w-full object-cover"
                           />

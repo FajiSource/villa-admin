@@ -27,6 +27,7 @@ import {
 } from "./ui/dialog";
 import apiService from "../services/apiService";
 import { useToast } from "../contexts/ToastContext";
+import { getImageUrl } from '../utils/imageUtils';
 
 type Booking = {
   id: number | string;
@@ -79,9 +80,18 @@ export function AllBookings() {
       try {
         const res = await apiService.get("/api/bookings");
         if (res.data.success) {
-          setBookings(res.data.data);
-          setFilteredBookings(res.data.data);
-          console.log("Fetched bookings:", res.data.data);
+          const normalizedBookings = res.data.data.map((booking: any) => ({
+            ...booking,
+            customer_name: booking.name || booking.user?.name || 'Unknown',
+            booking_date: booking.created_at || booking.booking_date,
+            contact_number: booking.contact || booking.contact_number,
+            entrance_guests: booking.pax || booking.entrance_guests,
+            total_amount: booking.total_amount || 0,
+            image: booking.payment_proof || booking.payment_proof_url || booking.proof_of_payment || booking.proof_of_payment_url || booking.paymentProof || booking.paymentProofUrl || booking.proofOfPayment || booking.proofOfPaymentUrl || booking.image,
+          }));
+          setBookings(normalizedBookings);
+          setFilteredBookings(normalizedBookings);
+          console.log("Fetched bookings:", normalizedBookings);
         }
       } catch (error) {
         console.error("Error fetching bookings:", error);
@@ -92,17 +102,24 @@ export function AllBookings() {
     fetchBookings();
   }, []);
 
-  const formatBookingDate = (dateString: string) => {
-    const bookingDate = new Date(dateString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    bookingDate.setHours(0, 0, 0, 0);
-    const diffDays =
-      (today.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24);
+  const formatBookingDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "Unknown date";
+    try {
+      const bookingDate = new Date(dateString);
+      if (isNaN(bookingDate.getTime())) return "Invalid date";
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      bookingDate.setHours(0, 0, 0, 0);
+      const diffDays =
+        (today.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24);
 
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    return bookingDate.toLocaleDateString();
+      if (diffDays === 0) return "Today";
+      if (diffDays === 1) return "Yesterday";
+      return bookingDate.toLocaleDateString();
+    } catch (error) {
+      return "Invalid date";
+    }
   };
 
   const handleFilterChange = (value: DateFilter) => {
@@ -641,7 +658,7 @@ export function AllBookings() {
                           </DialogHeader>
                           <div className="rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
                             <img
-                              src={booking.image || ""}
+                              src={getImageUrl(booking.image)}
                               alt={`Proof of payment for ${booking.customer_name}`}
                               className="w-full max-w-[50vh] max-h-[50vh] w-x-auto object-contain "
                               loading="lazy"

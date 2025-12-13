@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAddAccommodationImage, useDeleteAccommodationImage, useGetAccommodationImages } from "../lib/react-query/QueriesAndMutation";
 import { useToast } from "../contexts/ToastContext";
+import { getImageUrl } from '../utils/imageUtils';
 
 interface AccommodationImage {
   id: number;
@@ -38,8 +39,7 @@ export function AccommodationGallery({ accommodation_id }: AccommodationGalleryP
   const { addToast } = useToast();
 
   const viewImage = (url: string) => {
-    // Mock image URL generation
-    return `${import.meta.env.VITE_STORAGE_URL}/${url}`;
+    return getImageUrl(url);
   };
 
   const handleDrag = (e: React.DragEvent) => {
