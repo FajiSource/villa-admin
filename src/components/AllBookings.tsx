@@ -12,6 +12,8 @@ import {
   CheckCircle,
   XCircle,
   Star,
+  Mail,
+  AtSign,
 } from "lucide-react";
 import Header from "./customs/Header";
 import { Card, CardContent } from "./ui/card";
@@ -55,6 +57,13 @@ type Booking = {
   booking_status?: string | null;
   is_approved?: number | null;
   accommodation_id: number | string | null;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    username?: string | null;
+    phone?: string | null;
+  } | null;
   feedback?: {
     rating: number;
     comment?: string;
@@ -75,20 +84,24 @@ export function AllBookings() {
     number | string | null
   >(null);
 
+  const normalizeBookings = (bookings: any[]): Booking[] => {
+    return bookings.map((booking: any) => ({
+      ...booking,
+      customer_name: booking.name || booking.user?.name || 'Unknown',
+      booking_date: booking.created_at || booking.booking_date,
+      contact_number: booking.contact || booking.contact_number || booking.user?.phone || '',
+      entrance_guests: booking.pax || booking.entrance_guests,
+      total_amount: booking.total_amount || 0,
+      image: booking.payment_proof || booking.payment_proof_url || booking.proof_of_payment || booking.proof_of_payment_url || booking.paymentProof || booking.paymentProofUrl || booking.proofOfPayment || booking.proofOfPaymentUrl || booking.image,
+    }));
+  };
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         const res = await apiService.get("/api/bookings");
         if (res.data.success) {
-          const normalizedBookings = res.data.data.map((booking: any) => ({
-            ...booking,
-            customer_name: booking.name || booking.user?.name || 'Unknown',
-            booking_date: booking.created_at || booking.booking_date,
-            contact_number: booking.contact || booking.contact_number,
-            entrance_guests: booking.pax || booking.entrance_guests,
-            total_amount: booking.total_amount || 0,
-            image: booking.payment_proof || booking.payment_proof_url || booking.proof_of_payment || booking.proof_of_payment_url || booking.paymentProof || booking.paymentProofUrl || booking.proofOfPayment || booking.proofOfPaymentUrl || booking.image,
-          }));
+          const normalizedBookings = normalizeBookings(res.data.data);
           setBookings(normalizedBookings);
           setFilteredBookings(normalizedBookings);
           console.log("Fetched bookings:", normalizedBookings);
@@ -135,7 +148,6 @@ export function AllBookings() {
   const applyFilters = (filterValue: DateFilter, searchValue: string) => {
     let filtered = [...bookings];
 
-    // Apply date filter
     if (filterValue === "today") {
       filtered = filtered.filter((b) => {
         const bookingDate = new Date(b.booking_date);
@@ -151,12 +163,14 @@ export function AllBookings() {
       });
     }
 
-    // Apply search filter
     if (searchValue) {
       filtered = filtered.filter(
         (b) =>
           b.customer_name.toLowerCase().includes(searchValue.toLowerCase()) ||
           b.contact_number.includes(searchValue) ||
+          (b.user?.email && b.user.email.toLowerCase().includes(searchValue.toLowerCase())) ||
+          (b.user?.username && b.user.username.toLowerCase().includes(searchValue.toLowerCase())) ||
+          (b.user?.phone && b.user.phone.includes(searchValue)) ||
           (b.room_type &&
             b.room_type.toLowerCase().includes(searchValue.toLowerCase())) ||
           (b.cottage_type &&
@@ -196,7 +210,6 @@ export function AllBookings() {
   const getBookingStatus = (
     booking: Booking
   ): "approved" | "declined" | "pending" | "cancelled" => {
-    // Check various possible status fields
     const status = (
       booking.status ||
       booking.booking_status ||
@@ -214,15 +227,12 @@ export function AllBookings() {
       const res = await apiService.post(`/api/bookings/${bookingId}/approve`);
       if (res.data.success) {
         addToast("success", "Booking approved successfully!");
-        // Refresh bookings
         const refreshRes = await apiService.get("/api/bookings");
         if (refreshRes.data.success) {
-          const updatedBookings = refreshRes.data.data;
+          const updatedBookings = normalizeBookings(refreshRes.data.data);
           setBookings(updatedBookings);
-          // Reapply filters with updated data
           let filtered = [...updatedBookings];
 
-          // Apply date filter
           if (filter === "today") {
             filtered = filtered.filter((b) => {
               const bookingDate = new Date(b.booking_date);
@@ -238,7 +248,6 @@ export function AllBookings() {
             });
           }
 
-          // Apply search filter
           if (searchTerm) {
             filtered = filtered.filter(
               (b) =>
@@ -246,6 +255,9 @@ export function AllBookings() {
                   .toLowerCase()
                   .includes(searchTerm.toLowerCase()) ||
                 b.contact_number.includes(searchTerm) ||
+                (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (b.user?.phone && b.user.phone.includes(searchTerm)) ||
                 (b.room_type &&
                   b.room_type
                     .toLowerCase()
@@ -279,15 +291,12 @@ export function AllBookings() {
       const res = await apiService.post(`/api/bookings/${bookingId}/decline`);
       if (res.data.success) {
         addToast("success", "Booking declined successfully!");
-        // Refresh bookings
         const refreshRes = await apiService.get("/api/bookings");
         if (refreshRes.data.success) {
-          const updatedBookings = refreshRes.data.data;
+          const updatedBookings = normalizeBookings(refreshRes.data.data);
           setBookings(updatedBookings);
-          // Reapply filters with updated data
           let filtered = [...updatedBookings];
 
-          // Apply date filter
           if (filter === "today") {
             filtered = filtered.filter((b) => {
               const bookingDate = new Date(b.booking_date);
@@ -303,7 +312,6 @@ export function AllBookings() {
             });
           }
 
-          // Apply search filter
           if (searchTerm) {
             filtered = filtered.filter(
               (b) =>
@@ -311,6 +319,9 @@ export function AllBookings() {
                   .toLowerCase()
                   .includes(searchTerm.toLowerCase()) ||
                 b.contact_number.includes(searchTerm) ||
+                (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (b.user?.phone && b.user.phone.includes(searchTerm)) ||
                 (b.room_type &&
                   b.room_type
                     .toLowerCase()
@@ -348,15 +359,12 @@ export function AllBookings() {
       const res = await apiService.delete(`/api/bookings/${bookingId}`);
       if (res.data.success) {
         addToast("success", "Booking cancelled successfully!");
-        // Refresh bookings
         const refreshRes = await apiService.get("/api/bookings");
         if (refreshRes.data.success) {
-          const updatedBookings = refreshRes.data.data;
+          const updatedBookings = normalizeBookings(refreshRes.data.data);
           setBookings(updatedBookings);
-          // Reapply filters with updated data
           let filtered = [...updatedBookings];
 
-          // Apply date filter
           if (filter === "today") {
             filtered = filtered.filter((b) => {
               const bookingDate = new Date(b.booking_date);
@@ -372,7 +380,6 @@ export function AllBookings() {
             });
           }
 
-          // Apply search filter
           if (searchTerm) {
             filtered = filtered.filter(
               (b) =>
@@ -380,6 +387,9 @@ export function AllBookings() {
                   .toLowerCase()
                   .includes(searchTerm.toLowerCase()) ||
                 b.contact_number.includes(searchTerm) ||
+                (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (b.user?.phone && b.user.phone.includes(searchTerm)) ||
                 (b.room_type &&
                   b.room_type
                     .toLowerCase()
@@ -425,11 +435,9 @@ export function AllBookings() {
     <div className="h-full w-full p-8 bg-pelagic-gradient-light overflow-auto">
       <Header title="Booking Records" />
 
-      {/* Controls Section */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-white/20">
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            {/* Search */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
               <Input
@@ -440,7 +448,6 @@ export function AllBookings() {
               />
             </div>
 
-            {/* Filter Buttons */}
             <div className="flex gap-2">
               <Button
                 variant={filter === "all" ? "default" : "outline"}
@@ -479,7 +486,6 @@ export function AllBookings() {
             </div>
           </div>
 
-          {/* Results Count */}
           <div className="text-slate-600">
             <span className="font-medium text-[var(--primary-color)]">
               {filteredBookings.length}
@@ -489,7 +495,6 @@ export function AllBookings() {
         </div>
       </div>
 
-      {/* Bookings Grid */}
       {filteredBookings.length === 0 ? (
         <Card className="text-center py-16 border-slate-200">
           <CardContent className="space-y-4">
@@ -512,7 +517,6 @@ export function AllBookings() {
               className="group hover:shadow-xl transition-all duration-300 border-slate-200 hover:border-[var(--primary-color)]/30 bg-white"
             >
               <CardContent className="p-6">
-                {/* Header with Name and Status */}
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="font-semibold text-slate-900 text-lg group-hover:text-[var(--primary-color)] transition-colors">
@@ -523,9 +527,7 @@ export function AllBookings() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Trip state badge */}
                     {getStatusBadge(booking.check_in, booking.check_out)}
-                    {/* Approval status badge */}
                     {(() => {
                       const s = getBookingStatus(booking);
                       if (s === "approved") {
@@ -558,7 +560,6 @@ export function AllBookings() {
                   </div>
                 </div>
 
-                {/* Contact Info */}
                 <div className="flex items-center gap-2 mb-4 text-slate-600">
                   <Phone
                     className="w-4 h-4"
@@ -567,7 +568,44 @@ export function AllBookings() {
                   <span className="text-sm">{booking.contact_number}</span>
                 </div>
 
-                {/* Dates */}
+                {booking.user && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <User
+                        className="w-4 h-4"
+                        style={{ color: "var(--primary-color)" }}
+                      />
+                      <span className="text-sm font-semibold text-blue-900">
+                        Booked By
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-blue-800">
+                        <User className="w-3.5 h-3.5" />
+                        <span className="font-medium">{booking.user.name}</span>
+                      </div>
+                      {booking.user.email && (
+                        <div className="flex items-center gap-2 text-sm text-blue-700">
+                          <Mail className="w-3.5 h-3.5" />
+                          <span>{booking.user.email}</span>
+                        </div>
+                      )}
+                      {booking.user.phone && (
+                        <div className="flex items-center gap-2 text-sm text-blue-700">
+                          <Phone className="w-3.5 h-3.5" />
+                          <span>{booking.user.phone}</span>
+                        </div>
+                      )}
+                      {booking.user.username && (
+                        <div className="flex items-center gap-2 text-sm text-blue-700">
+                          <AtSign className="w-3.5 h-3.5" />
+                          <span>@{booking.user.username}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="bg-slate-50 rounded-lg p-3">
                     <p className="text-xs text-slate-500 mb-1">Check In</p>
@@ -583,7 +621,6 @@ export function AllBookings() {
                   </div>
                 </div>
 
-                {/* Accommodation Details */}
                 <div className="space-y-3 mb-4">
                   {booking.room_type && (
                     <div className="flex items-center gap-3">
@@ -618,7 +655,6 @@ export function AllBookings() {
                   </div>
                 </div>
 
-                {/* Total Amount */}
                 <div className="border-t border-slate-100 pt-4">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600">Total Amount</span>
@@ -634,7 +670,6 @@ export function AllBookings() {
                   </div>
                 </div>
 
-                {/* Proof of Payment */}
                 <div className="mt-4 w-[200px] border-t border-slate-100 pt-4">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600 text-sm font-medium uppercase tracking-wide">
@@ -674,7 +709,6 @@ export function AllBookings() {
                   </div>
                 </div>
 
-                {/* Feedback Section */}
                 {booking.feedback && (
                   <div className="mt-4 border-t border-slate-100 pt-4">
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -724,7 +758,6 @@ export function AllBookings() {
                     {(() => {
                       const bookingStatus = getBookingStatus(booking);
 
-                      // Show action buttons for pending bookings
                       if (bookingStatus === "pending") {
                         return (
                           <div className="flex gap-2">
@@ -770,7 +803,6 @@ export function AllBookings() {
                         );
                       }
 
-                      // Show cancel button for approved bookings (admin can cancel)
                       if (bookingStatus === "approved") {
                         return (
                           <div className="flex items-center justify-center gap-2">
@@ -801,7 +833,6 @@ export function AllBookings() {
                         );
                       }
 
-                      // Show status badge for declined or cancelled bookings
                       if (bookingStatus === "declined") {
                         return (
                           <div className="flex items-center justify-center">
