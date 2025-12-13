@@ -7,6 +7,7 @@ import { Checkbox } from "./ui/checkbox";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuthContext } from "../contexts/AuthContext";
 import { signInUser } from "../lib/api/authApi";
+import loginBg from "../assets/images/login-bg.jpg";
 
 export function ModernLogin() {
   const { login } = useAuthContext();
@@ -42,8 +43,8 @@ export function ModernLogin() {
       {/* Background with overlay */}
       <div className="absolute inset-0 z-0">
         <ImageWithFallback
-          src="https://images.unsplash.com/photo-1576682046480-da199ed1cf03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cm9waWNhbCUyMGJlYWNoJTIwcmVzb3J0JTIwc3Vuc2V0JTIwb2NlYW58ZW58MXx8fHwxNzU4NjI5NjA0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-          alt="Tropical Beach Resort"
+          src={loginBg}
+          alt="Villa Perez Resort"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-[#e82574]/90 via-[#bc1c5c]/85 to-[#7f1d1d]/90" />
