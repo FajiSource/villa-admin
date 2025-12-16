@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { getImageUrl } from '../utils/imageUtils';
+import { useEffect } from 'react';
  
 interface Price {
   id: number;
@@ -72,22 +73,27 @@ export function AccommodationDetails({ accommodation, onBack, onDelete, onEdit, 
     });
   };
 
+  
   // Normalize fields from backend shape and process image URL
-  const rawImageSrc = (accommodation as any).imageUrl || (accommodation as any).image || '';
+  const rawImageSrc = (accommodation as any).image;
   const imageSrc = rawImageSrc ? getImageUrl(rawImageSrc) : '';
   const normalizedPrices = Array.isArray((accommodation as any).prices)
-    ? (accommodation as any).prices
-    : ((accommodation as any).price
-        ? [{ id: 1, description: 'Per Night', price: String((accommodation as any).price) }]
-        : []);
+  ? (accommodation as any).prices
+  : ((accommodation as any).price
+  ? [{ id: 1, description: 'Per Night', price: String((accommodation as any).price) }]
+  : []);
   const normalizedAmenities = Array.isArray((accommodation as any).amenities)
-    ? (accommodation as any).amenities.map((a: any, idx: number) =>
-        typeof a === 'string' ? ({ id: idx + 1, name: a }) : a
-      )
-    : [];
+  ? (accommodation as any).amenities.map((a: any, idx: number) =>
+    typeof a === 'string' ? ({ id: idx + 1, name: a }) : a
+)
+: [];
 
-  const TypeIcon = getTypeIcon(accommodation.type);
+const TypeIcon = getTypeIcon(accommodation.type);
 
+useEffect(() => {
+  console.log(accommodation);
+  console.log(imageSrc);
+}, [accommodation, imageSrc]);
   return (
     <div className="h-full w-full bg-gradient-to-br from-slate-50 to-blue-50 overflow-auto">
       {/* Hero Section */}
