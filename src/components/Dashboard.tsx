@@ -15,6 +15,7 @@ export function Dashboard() {
   const { data: accommodations } = useGetAccommodations();
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [reportPeriod, setReportPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('yearly');
   const [showTodayBookings, setShowTodayBookings] = useState(false);
   const [showAvailableRooms, setShowAvailableRooms] = useState(false);
   const { data: feedbackStats, isLoading: loadingStats } = useGetFeedbackStatistics(selectedYear);
@@ -186,7 +187,24 @@ export function Dashboard() {
           )}
         </div>
         
-        <BookingsLineChart />
+        <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800" style={{ color: 'var(--primary-color)' }}>
+              Bookings Report
+            </h2>
+            <select
+              value={reportPeriod}
+              onChange={(e) => setReportPeriod(e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly')}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <BookingsLineChart period={reportPeriod} />
+        </div>
         <LatestUsers />
 
       </section>
