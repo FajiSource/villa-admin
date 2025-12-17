@@ -64,6 +64,18 @@ type Booking = {
     username?: string | null;
     phone?: string | null;
   } | null;
+  villaAndCottage?: {
+    id: number;
+    name: string;
+    type: string;
+    description?: string;
+  } | null;
+  villa_and_cottage?: {
+    id: number;
+    name: string;
+    type: string;
+    description?: string;
+  } | null;
   feedback?: {
     rating: number;
     comment?: string;
@@ -165,16 +177,22 @@ export function AllBookings() {
 
     if (searchValue) {
       filtered = filtered.filter(
-        (b) =>
-          b.customer_name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          b.contact_number.includes(searchValue) ||
-          (b.user?.email && b.user.email.toLowerCase().includes(searchValue.toLowerCase())) ||
-          (b.user?.username && b.user.username.toLowerCase().includes(searchValue.toLowerCase())) ||
-          (b.user?.phone && b.user.phone.includes(searchValue)) ||
-          (b.room_type &&
-            b.room_type.toLowerCase().includes(searchValue.toLowerCase())) ||
-          (b.cottage_type &&
-            b.cottage_type.toLowerCase().includes(searchValue.toLowerCase()))
+        (b) => {
+          const accommodation = b.villaAndCottage || b.villa_and_cottage;
+          return (
+            b.customer_name.toLowerCase().includes(searchValue.toLowerCase()) ||
+            b.contact_number.includes(searchValue) ||
+            (b.user?.email && b.user.email.toLowerCase().includes(searchValue.toLowerCase())) ||
+            (b.user?.username && b.user.username.toLowerCase().includes(searchValue.toLowerCase())) ||
+            (b.user?.phone && b.user.phone.includes(searchValue)) ||
+            (b.room_type &&
+              b.room_type.toLowerCase().includes(searchValue.toLowerCase())) ||
+            (b.cottage_type &&
+              b.cottage_type.toLowerCase().includes(searchValue.toLowerCase())) ||
+            (accommodation?.name && accommodation.name.toLowerCase().includes(searchValue.toLowerCase())) ||
+            (accommodation?.type && accommodation.type.toLowerCase().includes(searchValue.toLowerCase()))
+          );
+        }
       );
     }
 
@@ -221,6 +239,28 @@ export function AllBookings() {
     return "pending";
   };
 
+  const getAccommodationDetails = (booking: Booking) => {
+    const accommodation = booking.villaAndCottage || booking.villa_and_cottage;
+    if (!accommodation) return null;
+    
+    return {
+      name: accommodation.name || 'Unknown',
+      type: accommodation.type || 'Unknown',
+    };
+  };
+
+  const formatAccommodationType = (type: string | null | undefined): string => {
+    if (!type) return 'Unknown';
+    const typeLower = type.toLowerCase();
+    if (typeLower === 'villa') return 'Villa';
+    if (typeLower === 'cottage') return 'Cottage';
+    if (typeLower === 'family_room' || typeLower === 'family room') return 'Family Room';
+    if (typeLower === 'room') return 'Room';
+    return type.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
   const handleApprove = async (bookingId: number | string) => {
     setProcessingBooking(bookingId);
     try {
@@ -250,22 +290,28 @@ export function AllBookings() {
 
           if (searchTerm) {
             filtered = filtered.filter(
-              (b) =>
-                b.customer_name
-                  .toLowerCase()
-                  .includes(searchTerm.toLowerCase()) ||
-                b.contact_number.includes(searchTerm) ||
-                (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (b.user?.phone && b.user.phone.includes(searchTerm)) ||
-                (b.room_type &&
-                  b.room_type
+              (b) => {
+                const accommodation = b.villaAndCottage || b.villa_and_cottage;
+                return (
+                  b.customer_name
                     .toLowerCase()
-                    .includes(searchTerm.toLowerCase())) ||
-                (b.cottage_type &&
-                  b.cottage_type
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase()))
+                    .includes(searchTerm.toLowerCase()) ||
+                  b.contact_number.includes(searchTerm) ||
+                  (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (b.user?.phone && b.user.phone.includes(searchTerm)) ||
+                  (b.room_type &&
+                    b.room_type
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())) ||
+                  (b.cottage_type &&
+                    b.cottage_type
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())) ||
+                  (accommodation?.name && accommodation.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (accommodation?.type && accommodation.type.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+              }
             );
           }
 
@@ -314,22 +360,28 @@ export function AllBookings() {
 
           if (searchTerm) {
             filtered = filtered.filter(
-              (b) =>
-                b.customer_name
-                  .toLowerCase()
-                  .includes(searchTerm.toLowerCase()) ||
-                b.contact_number.includes(searchTerm) ||
-                (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (b.user?.phone && b.user.phone.includes(searchTerm)) ||
-                (b.room_type &&
-                  b.room_type
+              (b) => {
+                const accommodation = b.villaAndCottage || b.villa_and_cottage;
+                return (
+                  b.customer_name
                     .toLowerCase()
-                    .includes(searchTerm.toLowerCase())) ||
-                (b.cottage_type &&
-                  b.cottage_type
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase()))
+                    .includes(searchTerm.toLowerCase()) ||
+                  b.contact_number.includes(searchTerm) ||
+                  (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (b.user?.phone && b.user.phone.includes(searchTerm)) ||
+                  (b.room_type &&
+                    b.room_type
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())) ||
+                  (b.cottage_type &&
+                    b.cottage_type
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())) ||
+                  (accommodation?.name && accommodation.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (accommodation?.type && accommodation.type.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+              }
             );
           }
 
@@ -382,22 +434,28 @@ export function AllBookings() {
 
           if (searchTerm) {
             filtered = filtered.filter(
-              (b) =>
-                b.customer_name
-                  .toLowerCase()
-                  .includes(searchTerm.toLowerCase()) ||
-                b.contact_number.includes(searchTerm) ||
-                (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (b.user?.phone && b.user.phone.includes(searchTerm)) ||
-                (b.room_type &&
-                  b.room_type
+              (b) => {
+                const accommodation = b.villaAndCottage || b.villa_and_cottage;
+                return (
+                  b.customer_name
                     .toLowerCase()
-                    .includes(searchTerm.toLowerCase())) ||
-                (b.cottage_type &&
-                  b.cottage_type
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase()))
+                    .includes(searchTerm.toLowerCase()) ||
+                  b.contact_number.includes(searchTerm) ||
+                  (b.user?.email && b.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (b.user?.username && b.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (b.user?.phone && b.user.phone.includes(searchTerm)) ||
+                  (b.room_type &&
+                    b.room_type
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())) ||
+                  (b.cottage_type &&
+                    b.cottage_type
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())) ||
+                  (accommodation?.name && accommodation.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (accommodation?.type && accommodation.type.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+              }
             );
           }
 
@@ -559,6 +617,38 @@ export function AllBookings() {
                     })()}
                   </div>
                 </div>
+
+                {(() => {
+                  const accommodation = getAccommodationDetails(booking);
+                  if (accommodation) {
+                    return (
+                      <div className="bg-gradient-to-r from-[var(--primary-color)]/10 to-[var(--primary-color)]/5 border border-[var(--primary-color)]/20 rounded-lg p-4 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Bed
+                            className="w-5 h-5"
+                            style={{ color: "var(--primary-color)" }}
+                          />
+                          <span className="text-sm font-semibold text-slate-900">
+                            Booked Accommodation
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base font-bold text-[var(--primary-color)]">
+                              {accommodation.name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-[var(--primary-color)]/20 text-[var(--primary-color)] border-[var(--primary-color)]/30 hover:bg-[var(--primary-color)]/30">
+                              {formatAccommodationType(accommodation.type)}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 <div className="flex items-center gap-2 mb-4 text-slate-600">
                   <Phone
