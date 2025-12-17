@@ -155,7 +155,20 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
 
   const handlePriceChange = (index: number, field: 'description' | 'price', value: string) => {
     const newPrices = [...form.prices];
-    newPrices[index][field] = value;
+    if (field === 'price') {
+      if (value === '') {
+        newPrices[index][field] = value;
+      } else {
+        const numValue = parseFloat(value);
+        if (!isNaN(numValue) && numValue >= 0) {
+          newPrices[index][field] = value;
+        } else {
+          return;
+        }
+      }
+    } else {
+      newPrices[index][field] = value;
+    }
     setForm({ ...form, prices: newPrices });
     if (validationErrors.prices) {
       setValidationErrors({ ...validationErrors, prices: undefined });
@@ -235,7 +248,7 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
         return isNaN(priceNum) || priceNum < 0;
       });
       if (invalidPrice) {
-        errors.prices = 'All prices must be valid positive numbers.';
+        errors.prices = 'All prices must be valid positive numbers (zero or greater). Negative numbers are not allowed.';
       }
     }
 
@@ -687,6 +700,8 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                       placeholder="Price"
                       value={price.price}
                       onChange={(e) => handlePriceChange(index, 'price', e.target.value)}
+                      min="0"
+                      step="0.01"
                       className="bg-white/80 border-cyan-200 focus:border-cyan-400 w-32"
                     />
                     {form.prices?.length > 1 && (
@@ -867,6 +882,8 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                       placeholder="Price"
                       value={price.price}
                       onChange={(e) => handlePriceChange(index, 'price', e.target.value)}
+                      min="0"
+                      step="0.01"
                       className="bg-white/80 border-cyan-200 focus:border-cyan-400 w-32"
                     />
                     {form.prices?.length > 1 && (
