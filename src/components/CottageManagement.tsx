@@ -329,12 +329,17 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
     }
     
     try {
-      await deleteAccommodation(id);
-      addToast('success', 'Accommodation deleted successfully!');
+      const result = await deleteAccommodation(id);
+      addToast('success', result?.message || 'Accommodation deleted successfully!');
       refetch();
     } catch (err: any) {
-      console.error('Error:', err.response?.data || err.message);
-      addToast('danger', err.response?.data?.error || 'Failed to delete accommodation.');
+      const errorMessage = 
+        err?.error || 
+        err?.response?.data?.error || 
+        err?.response?.data?.message || 
+        err?.message || 
+        'Failed to delete accommodation.';
+      addToast('danger', errorMessage);
     }
   };
 
@@ -415,13 +420,18 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
     }
     
     try {
-      await deleteAccommodation(id);
-      addToast('success', 'Accommodation deleted successfully!');
+      const result = await deleteAccommodation(id);
+      addToast('success', result?.message || 'Accommodation deleted successfully!');
       setSelectedAccommodation(null);
       refetch();
     } catch (err: any) {
-      console.error('Error:', err.response?.data || err.message);
-      addToast('danger', err.response?.data?.error || 'Failed to delete accommodation.');
+      const errorMessage = 
+        err?.error || 
+        err?.response?.data?.error || 
+        err?.response?.data?.message || 
+        err?.message || 
+        'Failed to delete accommodation.';
+      addToast('danger', errorMessage);
     }
   };
 

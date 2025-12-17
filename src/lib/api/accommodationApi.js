@@ -64,7 +64,8 @@ export const deleteAccommodation = async (id) => {
         return res.data;
     } catch (error) {
         console.error("Error deleting accommodation:", error);
-        throw error.response?.data || error.message;
+        // Throw the full error object so components can access error.response?.data
+        throw error;
     }
 };
 
