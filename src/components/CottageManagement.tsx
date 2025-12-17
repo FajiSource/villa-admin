@@ -131,6 +131,15 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
     description: '',
   });
   const [image, setImage] = useState<File | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{
+    name?: string;
+    type?: string;
+    capacity?: string;
+    status?: string;
+    image?: string;
+    prices?: string;
+    description?: string;
+  }>({});
 
   const filteredCottages = cottages?.filter(cottage =>
     cottage.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,12 +148,18 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
 
   const handleChange = (field: string, value: string) => {
     setForm({ ...form, [field]: value });
+    if (validationErrors[field as keyof typeof validationErrors]) {
+      setValidationErrors({ ...validationErrors, [field]: undefined });
+    }
   };
 
   const handlePriceChange = (index: number, field: 'description' | 'price', value: string) => {
     const newPrices = [...form.prices];
     newPrices[index][field] = value;
     setForm({ ...form, prices: newPrices });
+    if (validationErrors.prices) {
+      setValidationErrors({ ...validationErrors, prices: undefined });
+    }
   };
 
   const handleAmenityChange = (index: number, value: string) => {
@@ -170,40 +185,115 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
     }
   };
 
+  const validateForm = (): boolean => {
+    const errors: typeof validationErrors = {};
+
+    if (!form.name.trim()) {
+      errors.name = 'Accommodation name is required.';
+    } else if (form.name.trim().length > 255) {
+      errors.name = 'Accommodation name must not exceed 255 characters.';
+    }
+
+    if (!form.type) {
+      errors.type = 'Accommodation type is required.';
+    } else if (!['Room', 'Villa', 'Cottage'].includes(form.type)) {
+      errors.type = 'Accommodation type must be Room, Villa, or Cottage.';
+    }
+
+    if (!form.capacity) {
+      errors.capacity = 'Capacity is required.';
+    } else {
+      const capacityNum = parseInt(form.capacity, 10);
+      if (isNaN(capacityNum) || capacityNum < 1) {
+        errors.capacity = 'Capacity must be a positive integer (at least 1).';
+      }
+    }
+
+    if (!form.status) {
+      errors.status = 'Status is required.';
+    } else if (!['Available', 'Booked'].includes(form.status)) {
+      errors.status = 'Status must be Available or Booked.';
+    }
+
+    if (!image) {
+      errors.image = 'Image is required.';
+    } else {
+      if (!image.type.startsWith('image/')) {
+        errors.image = 'Please select a valid image file.';
+      }
+      if (image.size > 5 * 1024 * 1024) {
+        errors.image = 'Image size must not exceed 5MB.';
+      }
+    }
+
+    const validPrices = form.prices?.filter(p => p.price && p.price.trim());
+    if (!validPrices || validPrices.length === 0) {
+      errors.prices = 'At least one price is required.';
+    } else {
+      const invalidPrice = validPrices.find(p => {
+        const priceNum = parseFloat(p.price);
+        return isNaN(priceNum) || priceNum < 0;
+      });
+      if (invalidPrice) {
+        errors.prices = 'All prices must be valid positive numbers.';
+      }
+    }
+
+    if (form.description && form.description.length > 5000) {
+      errors.description = 'Description must not exceed 5000 characters.';
+    }
+
+    setValidationErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      const errorMessages = Object.values(errors).filter(Boolean);
+      if (errorMessages.length > 0) {
+        addToast('danger', `Please fix the following errors: ${errorMessages[0]}`);
+      }
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.name.trim() && form.type) {
-      const formData = new FormData();
-      formData.append("name", form.name);
-      formData.append("type", form.type);
-      if (form.capacity) formData.append("capacity", String(form.capacity));
-      if (form.status) formData.append("status", form.status);
-      if (form.description) formData.append("description", form.description);
-      if (image) formData.append("image", image);
+    
+    setValidationErrors({});
 
-      // Map first price to price_per_night
-      const firstPrice = form.prices?.[0]?.price;
-      if (firstPrice) formData.append('price_per_night', String(firstPrice));
-      // Optional: still include original prices fields for future-proofing
-      form.prices.forEach((p, i) => {
-        formData.append(`prices[${i}][description]`, p.description);
-        formData.append(`prices[${i}][price]`, p.price);
-      });
-      form.amenities.forEach((a, i) => formData.append(`amenities[${i}]`, a));
+    if (!validateForm()) {
+      return;
+    }
 
-      try {
-        await createNewAccomodation(formData);
-        setForm({ name: "", type: "", prices: [{ description: "", price: "" }], amenities: [""], capacity: "", status: "Available", description: "" });
-        setImage(null);
-        addToast("success", "Accommodation created successfully!");
-        setIsAddModalOpen(false);
-        refetch();
+    const formData = new FormData();
+    formData.append("name", form.name.trim());
+    formData.append("type", form.type);
+    formData.append("capacity", String(form.capacity));
+    formData.append("status", form.status);
+    if (form.description) formData.append("description", form.description);
+    if (image) formData.append("image", image);
 
-      } catch (err: any) {
-        console.error("Error:", err.response?.data || err.message);
-        addToast("danger", "Failed to create accommodation.");
-      }
+    const firstPrice = form.prices?.[0]?.price;
+    if (firstPrice) formData.append('price_per_night', String(firstPrice));
+    form.prices.forEach((p, i) => {
+      formData.append(`prices[${i}][description]`, p.description);
+      formData.append(`prices[${i}][price]`, p.price);
+    });
+    form.amenities.forEach((a, i) => formData.append(`amenities[${i}]`, a));
 
+    try {
+      await createNewAccomodation(formData);
+      setForm({ name: "", type: "", prices: [{ description: "", price: "" }], amenities: [""], capacity: "", status: "Available", description: "" });
+      setImage(null);
+      setValidationErrors({});
+      addToast("success", "Accommodation created successfully!");
+      setIsAddModalOpen(false);
+      refetch();
+
+    } catch (err: any) {
+      console.error("Error:", err.response?.data || err.message);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to create accommodation.';
+      addToast("danger", errorMessage);
     }
   };
 
@@ -419,7 +509,12 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
           />
         </div>
 
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <Dialog open={isAddModalOpen} onOpenChange={(open) => {
+          setIsAddModalOpen(open);
+          if (!open) {
+            setValidationErrors({});
+          }
+        }}>
           <DialogTrigger asChild>
             <button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg inline-flex items-center justify-center h-10 px-4 py-2 rounded-md">
               <Plus className="h-4 w-4 mr-2" />
@@ -448,15 +543,21 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                     placeholder="e.g., Oceanview Villa"
                     value={form.name}
                     onChange={(e) => handleChange('name', e.target.value)}
-                    className="bg-white/80 border-cyan-200 focus:border-cyan-400"
+                    className={`bg-white/80 ${validationErrors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-cyan-200 focus:border-cyan-400'}`}
                     required
                   />
+                  {validationErrors.name && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <span className="text-red-500">⚠</span>
+                      {validationErrors.name}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="type">Type</Label>
                   <Select value={form.type} onValueChange={(value) => handleChange('type', value)} required>
-                    <SelectTrigger className="bg-white/80 border-cyan-200 focus:border-cyan-400">
+                    <SelectTrigger className={`bg-white/80 ${validationErrors.type ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-cyan-200 focus:border-cyan-400'}`}>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -465,6 +566,12 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                       <SelectItem value="Cottage">Cottage</SelectItem>
                     </SelectContent>
                   </Select>
+                  {validationErrors.type && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <span className="text-red-500">⚠</span>
+                      {validationErrors.type}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -475,16 +582,23 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                     id="capacity"
                     type="number"
                     placeholder="e.g., 4"
+                    min="1"
                     value={form.capacity}
                     onChange={(e) => handleChange('capacity', e.target.value)}
-                    className="bg-white/80 border-cyan-200 focus:border-cyan-400"
+                    className={`bg-white/80 ${validationErrors.capacity ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-cyan-200 focus:border-cyan-400'}`}
                     required
                   />
+                  {validationErrors.capacity && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <span className="text-red-500">⚠</span>
+                      {validationErrors.capacity}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select value={form.status} onValueChange={(value) => handleChange('status', value)} required>
-                    <SelectTrigger className="bg-white/80 border-cyan-200 focus:border-cyan-400">
+                    <SelectTrigger className={`bg-white/80 ${validationErrors.status ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-cyan-200 focus:border-cyan-400'}`}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -492,6 +606,12 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                       <SelectItem value="Booked">Booked</SelectItem>
                     </SelectContent>
                   </Select>
+                  {validationErrors.status && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <span className="text-red-500">⚠</span>
+                      {validationErrors.status}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -501,9 +621,15 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                   id="description"
                   value={form.description}
                   onChange={(e) => handleChange('description', e.target.value)}
-                  className="w-full min-h-[100px] px-3 py-2 border border-cyan-200 rounded-md bg-white/80 focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+                  className={`w-full min-h-[100px] px-3 py-2 border rounded-md bg-white/80 focus:outline-none focus:ring-2 resize-none ${validationErrors.description ? 'border-red-500 focus:ring-red-500' : 'border-cyan-200 focus:ring-cyan-400'}`}
                   placeholder="Enter accommodation description..."
                 />
+                {validationErrors.description && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <span className="text-red-500">⚠</span>
+                    {validationErrors.description}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -512,10 +638,22 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                   id="image"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImage(e.target.files?.[0] || null)}
-                  className="bg-white/80 border-cyan-200 focus:border-cyan-400"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setImage(file);
+                    if (file && validationErrors.image) {
+                      setValidationErrors({ ...validationErrors, image: undefined });
+                    }
+                  }}
+                  className={`bg-white/80 ${validationErrors.image ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-cyan-200 focus:border-cyan-400'}`}
                   required
                 />
+                {validationErrors.image && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <span className="text-red-500">⚠</span>
+                    {validationErrors.image}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -583,6 +721,7 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                     setIsAddModalOpen(false);
                     setForm({ name: '', type: '', prices: [{ description: '', price: '' }], amenities: [''], capacity: '', status: 'Available', description: '' });
                     setImage(null);
+                    setValidationErrors({});
                   }}
                   className="border-slate-200 hover:bg-slate-50"
                 >
@@ -805,7 +944,10 @@ export function CottageManagement({ onBack }: CottageManagementProps) {
                 </p>
                 {!searchTerm && (
                   <Button
-                    onClick={() => setIsAddModalOpen(true)}
+                    onClick={() => {
+                      setIsAddModalOpen(true);
+                      setValidationErrors({});
+                    }}
                     className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
                   >
                     <Plus className="h-4 w-4 mr-2" />
